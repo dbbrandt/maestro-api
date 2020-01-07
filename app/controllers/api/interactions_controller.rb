@@ -27,7 +27,7 @@ module Api
     def create
       @interaction = @goal.interactions.create!(interaction_params)
       save_contents if params['prompt']
-      json_response(params["deep"] ? deep_response(@interaction) : @interaction, :ok)
+      json_response(params["prompt"] ? deep_response(@interaction) : @interaction, :ok)
     end
 
     # PUT /goals/:goal_id/interactions/:id
