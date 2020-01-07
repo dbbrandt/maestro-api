@@ -1,5 +1,5 @@
 # spec/factories/interactions.rb
-FactoryGirl.define do
+FactoryBot.define do
   factory :interaction do
     title { Faker::Lorem.word }
     answer_type { 'ShortAnswer' }

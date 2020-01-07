@@ -1,5 +1,5 @@
 # spec/factories/contents.rb
-FactoryGirl.define do
+FactoryBot.define do
   factory :content do
     title { Faker::Lorem.word }
     content_type { "Prompt" }
@@ -10,7 +10,7 @@ FactoryGirl.define do
 
   trait :criterion do
     content_type { "Criterion" }
-    score 1
+    score { 1 }
     descriptor { Faker::Lorem.word }
   end
 end

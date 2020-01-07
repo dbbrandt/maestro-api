@@ -1,5 +1,5 @@
 # spec/factories/goals.rb
-FactoryGirl.define do
+FactoryBot.define do
   factory :goal do
     title { Faker::Lorem.word }
   end

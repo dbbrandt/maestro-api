@@ -5,7 +5,7 @@ module Api
     rescue_from StandardError, with: :internal_server_error!
 
     def ok!(content)
-      if (content)
+      if content
         render json: content
       else
         head :ok
