@@ -5,7 +5,7 @@ default: &default
   adapter: postgresql
   host: localhost
   encoding: unicode
-  database: mm_api_dev
+  database: maestro_dev
   pool: 5
   username: precidix
   password: precidix
@@ -18,11 +18,11 @@ development:
 # Do not set this db to the same as development or production.
 test:
   <<: *default
-  database: mm_api_test
+  database: maestro_test
 
 production:
   <<: *default
   host: precidix-postgres.c28s3zrjaak1.us-east-1.rds.amazonaws.com
-  database: mm_api
+  database: maestro_api
   username: precidix
   password: precidix

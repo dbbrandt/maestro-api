@@ -1,0 +1,7 @@
+title,answer_type,prompt,criterion1,copy1,points1,criterion2,copy2,points2,criterion3,copy3,points3,criterion4,copy4,points4
+Ruby Developer,ShortAnswer,What was Ruby's original developers name?,Yukihiro Matsumoto,Yukihiro Matsumoto in the mid 1990’s,1,,,,,,,,,
+POLA stand for,ShortAnswer,,Principle of Least Surprise,POLA means things work as you would expect them to.,1,Principle of least Astonishment,POLA means things work as you would expect them to.,1,,,,,,
+Ruby language principle,FunnyChoice,Which is not a Ruby Language Principles?,Takes the true OO approach of Smalltalk,,0,Everything is an object,,0,Follow the principle of POLA,,0,Favor explicit and readabilie over implicit and elegant.,,0
+Immutable String,ShortAnswer,What method makes a string immutable?,,,,,,,,,,,,
+Symbol Memory Use,ShortAnswer,How are symbols allocated in memory?,Every use or declaration is the same object,Every use or declaration of a symbol uses the same object,0,Every use or declaration uses the same object,Every use or declaration of a symbol uses the same object,0,Is a single object,Every use or declaration of a symbol uses the same object,0,,,
+,,,,,,,,,,,,,,
