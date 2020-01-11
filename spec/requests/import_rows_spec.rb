@@ -9,8 +9,8 @@ RSpec.describe 'import_rows API', type: :request do
   let!(:import_row) { create(:import_row, import_file: import_file)}
   let!(:import_rows) { create_list(:import_row, 9, import_file: import_file) }
   let(:import_row_id) { import_rows.first.id }
-  let(:valid_attributes) { { title: "Tom Hanks", json_data: "{\"title\": \"#{Faker::Lorem.word}\",\"answer_type\": \"ShortAnswer\",\"prompt\": #{Faker::Lorem.sentences(1)},\"criterion1\": #{Faker::Lorem.sentences(1)},\"copy1\": #{Faker::Lorem.sentences(1)},\"points1\": \"1\"}"  } }
-  let(:invalid_json_data) { { title: "Tom Hanks", json_data: "{\"title\": \"\",\"answer_type\": \"LongAnswer\",\"prompt\": \"\",\"criterion1\": \"\",\"copy1\": #{Faker::Lorem.sentences(1)},\"points1\": \"0\"}"  } }
+  let(:valid_attributes) { { title: "Tom Hanks", json_data: "{\"title\": \"#{Faker::Lorem.word}\",\"answer_type\": \"ShortAnswer\",\"prompt\": #{Faker::Lorem.sentences(number:1)},\"criterion1\": #{Faker::Lorem.sentences(number: 1)},\"copy1\": #{Faker::Lorem.sentences(number: 1)},\"points1\": \"1\"}"  } }
+  let(:invalid_json_data) { { title: "Tom Hanks", json_data: "{\"title\": \"\",\"answer_type\": \"LongAnswer\",\"prompt\": \"\",\"criterion1\": \"\",\"copy1\": #{Faker::Lorem.sentences(number: 1)},\"points1\": \"0\"}"  } }
 
 
   # Test reject requests that are not permitted for this resource

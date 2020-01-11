@@ -1,8 +1,9 @@
+
 module Api
   class InteractionsController < ApplicationController
     before_action :set_goal
 
-    MMAPIPY_URL="http://www.memorymaestro.com/mm-api-py"
+    MM_API_PY_URL="http://api.memorymaestro.com/mm-api-py"
 
     # GET /goals/:goal_id/interactions
     def index
@@ -52,7 +53,7 @@ module Api
       params = "?answer=#{answer}&correct=#{correct_answer}"
       predicted = correct_answer
       if !answer.empty?
-        response = HTTParty.get(MMAPIPY_URL+params)
+        response = HTTParty.get(MM_API_PY_URL+params)
         if response.code == 200
           logger.info("HTTP mm-api-py result: #{response.body}")
           results = JSON.parse(response.body)
@@ -65,17 +66,17 @@ module Api
         end
       end
       json_response({
-         "correct": correct,
-         "score": score,
-         "predicted": predicted
+         correct: correct,
+         score: score,
+         predicted: predicted
       })
     end
 
     def submit_review
       response = save_response(params['answer'], params['score'], params['correct'], params['review'])
       json_response({
-          "round": @round.id,
-          "response": response.id
+          round: @round.id,
+          response: response.id
       })
     end
 
@@ -94,11 +95,11 @@ module Api
     end
 
     def set_round
-      user = Fae::User.first
+      user = User.create(email: 'test@test.com', password: 'test-test', name: 'test', admin: true )
       if params['round']
         round_id = params['round'].to_i
         @round = Round.where(id: round_id).first
-        @round = Round.create(goal: @goal, fae_user_id: user.id) unless @round
+        @round = Round.create(goal: @goal, user_id: user.id) unless @round
       end
     end
 
@@ -111,30 +112,30 @@ module Api
        i = interaction
        p = interaction.prompt
       {
-        "id": i.id,
-        "title": i.title,
-        "answer_type": i.answer_type,
-        "created_at": i.created_at,
-        "updated_at": i.updated_at,
-        "prompt": {
-            "id": p&.id,
-            "title": p&.title,
-            "copy": p&.copy,
-            "stimulus_url": i.stimulus_url
+        id: i.id,
+        title: i.title,
+        answer_type: i.answer_type,
+        created_at: i.created_at,
+        updated_at: i.updated_at,
+        prompt: {
+            id: p&.id,
+            title: p&.title,
+            copy: p&.copy,
+            stimulus_url: i.stimulus_url
         },
-        "criterion": criterion_response(interaction)
+        criterion: criterion_response(interaction)
       }
     end
 
     def criterion_response(interaction)
       resp = interaction.criterion.map do |c|
         {
-            "id": c.id,
-            "title": c.title,
-            "description": c.description,
-            "copy": c.copy,
-            "descriptor": c.descriptor,
-            "score": c.score
+            id: c.id,
+            title: c.title,
+            description: c.description,
+            copy: c.copy,
+            descriptor: c.descriptor,
+            score: c.score
         }
       end
       resp

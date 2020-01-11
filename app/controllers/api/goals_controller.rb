@@ -52,11 +52,11 @@ module Api
 
     def goal_response(goal)
       {
-          'id': goal.id,
-          'title': goal.title,
-          'image_url': goal.image_url,
-          'created_at': goal.created_at,
-          'updated_at': goal.updated_at,
+          id: goal.id,
+          title: goal.title,
+          image_url: goal.image_url,
+          created_at: goal.created_at,
+          updated_at: goal.updated_at,
       }
     end
   end

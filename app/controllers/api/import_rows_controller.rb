@@ -49,12 +49,12 @@ module Api
     def json_data_response( status)
       response =
           {
-              "id": @import_row.id,
-              "title": @import_row.title,
-              "import_file_id": @import_row.import_file_id,
-              "created_at": @import_row.created_at,
-              "updated_at": @import_row.updated_at,
-              "json_data": JSON.parse(@import_row.json_data),
+              id: @import_row.id,
+              title: @import_row.title,
+              import_file_id: @import_row.import_file_id,
+              created_at: @import_row.created_at,
+              updated_at: @import_row.updated_at,
+              json_data: JSON.parse(@import_row.json_data),
           }
       json_response(response, status)
     end

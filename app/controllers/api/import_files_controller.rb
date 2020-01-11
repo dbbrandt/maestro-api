@@ -89,12 +89,12 @@ module Api
     def json_data_response( status, errors = nil )
       response =
       {
-          "id": @import_file.id,
-          "title": @import_file.title,
-          "goal_id": @import_file.goal_id,
-          "created_at": @import_file.created_at,
-          "updated_at": @import_file.updated_at,
-          "json_data": JSON.parse(@import_file.json_data)
+          id: @import_file.id,
+          title: @import_file.title,
+          goal_id: @import_file.goal_id,
+          created_at: @import_file.created_at,
+          updated_at: @import_file.updated_at,
+          json_data: JSON.parse(@import_file.json_data)
       }
 
       response[:errors] = errors unless errors.nil?

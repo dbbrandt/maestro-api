@@ -1,3 +1,5 @@
+# require 'rails_helper'
+
 describe JwtService do
   subject { described_class }
 

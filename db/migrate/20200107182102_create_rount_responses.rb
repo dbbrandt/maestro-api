@@ -1,6 +1,6 @@
 class CreateResponses < ActiveRecord::Migration[5.1]
   def change
-    create_table :responses do |t|
+    create_table :round_responses do |t|
       t.string :answer
       t.float :score
       t.boolean :is_correct

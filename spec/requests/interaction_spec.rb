@@ -137,8 +137,6 @@ RSpec.describe 'interactions API', type: :request do
     # Test suite for POST /goal/:goal_id/interactions/:id/submit_review
     describe 'POST /api/goals/:goal_id/interactions/:id/submit_review' do
       before do
-        Fae::User.create(first_name: 'Test', last_name: 'user', password: 'testtest',
-                         email: 'test@test.com', role_id: 10)
         create(:content, :criterion, interaction: interaction)
         post "/api/goals/#{goal_id}/interactions/#{interaction_id}/submit_review",
             params: { goal_id: goal_id, id: interaction_id, round: 0, answer: 'Test', score: 90, correct: true, review: true }
@@ -166,8 +164,8 @@ RSpec.describe 'interactions API', type: :request do
           expect(json['title']).to eq('Tom Hanks')
         end
 
-        it 'returns status code 201' do
-          expect(response).to have_http_status(201)
+        it 'returns status code 200' do
+          expect(response).to have_http_status(200)
         end
       end
 
@@ -192,11 +190,11 @@ RSpec.describe 'interactions API', type: :request do
         before { put "/api/goals/#{goal_id}/interactions/#{interaction_id}", params: valid_attributes }
 
         it 'updates the record' do
-          expect(response.body).to be_empty
+          expect(response.body).not_to be_empty
         end
 
-        it 'returns status code 204' do
-          expect(response).to have_http_status(204)
+        it 'returns status code 200' do
+          expect(response).to have_http_status(200)
         end
       end
 
