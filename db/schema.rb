@@ -70,7 +70,7 @@ ActiveRecord::Schema.define(version: 20200111001058) do
     t.index ["import_row_id"], name: "index_interactions_on_import_row_id"
   end
 
-  create_table "responses", force: :cascade do |t|
+  create_table "round_responses", force: :cascade do |t|
     t.string "answer"
     t.float "score"
     t.boolean "is_correct"
@@ -80,8 +80,8 @@ ActiveRecord::Schema.define(version: 20200111001058) do
     t.bigint "interaction_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["interaction_id"], name: "index_responses_on_interaction_id"
-    t.index ["round_id"], name: "index_responses_on_round_id"
+    t.index ["interaction_id"], name: "index_round_responses_on_interaction_id"
+    t.index ["round_id"], name: "index_round_responses_on_round_id"
   end
 
   create_table "rounds", force: :cascade do |t|
@@ -110,8 +110,8 @@ ActiveRecord::Schema.define(version: 20200111001058) do
   add_foreign_key "import_rows", "import_files"
   add_foreign_key "interactions", "goals"
   add_foreign_key "interactions", "import_rows"
-  add_foreign_key "responses", "interactions"
-  add_foreign_key "responses", "rounds"
+  add_foreign_key "round_responses", "interactions"
+  add_foreign_key "round_responses", "rounds"
   add_foreign_key "rounds", "goals"
   add_foreign_key "rounds", "users"
 end
