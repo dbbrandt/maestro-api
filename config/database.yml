@@ -22,7 +22,7 @@ test:
 
 production:
   <<: *default
-  host: precidix-postgres.c28s3zrjaak1.us-east-1.rds.amazonaws.com
+  host: <%= ENV["MM_DB_HOST"] %>
   database: maestro_api
-  username: precidix
-  password: precidix
+  username: <%= ENV["MM_DB_USERNAME"] %>
+  password: <%= ENV["MM_DB_PASSWORD"] %>
