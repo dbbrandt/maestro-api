@@ -5,13 +5,13 @@ default: &default
   adapter: postgresql
   host: localhost
   encoding: unicode
-  database: maestro_dev
   pool: 5
   username: precidix
   password: precidix
 
 development:
   <<: *default
+  database: maestro_dev
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
@@ -22,7 +22,7 @@ test:
 
 production:
   <<: *default
-  host: precidix-postgres.c28s3zrjaak1.us-east-1.rds.amazonaws.com
+  host: memory-maestro.c28s3zrjaak1.us-east-1.rds.amazonaws.com
   database: maestro_api
-  username: precidix
-  password: precidix
+  username: postgres
+  password: x7ivj56CjyWrLeGRKT

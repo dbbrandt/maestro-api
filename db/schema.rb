@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20200111001058) do
+ActiveRecord::Schema.define(version: 2020_01_11_001058) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -73,7 +73,7 @@ ActiveRecord::Schema.define(version: 20200111001058) do
   create_table "round_responses", force: :cascade do |t|
     t.string "answer"
     t.float "score"
-    t.boolean "is_correct"
+    t.boolean "is_corrects"
     t.boolean "review_is_correct"
     t.string "descriptor"
     t.bigint "round_id"
