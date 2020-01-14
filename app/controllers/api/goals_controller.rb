@@ -54,6 +54,8 @@ module Api
       {
           id: goal.id,
           title: goal.title,
+          description: goal.description,
+          instructions: goal.instructions,
           image_url: goal.image_url,
           created_at: goal.created_at,
           updated_at: goal.updated_at,
