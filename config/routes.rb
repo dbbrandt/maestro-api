@@ -19,6 +19,9 @@ Rails.application.routes.draw do
             post :generate
           end
         end
+        resource :rounds do
+          resource :round_responses
+        end
       end
 
       # Interactions are only accessible through goals and content through interactions.
