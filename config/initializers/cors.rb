@@ -7,7 +7,7 @@
 
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
-    origins 'localhost:3000'
+    origins 'localhost:3000','dev.memorymaestro.com:3000', 'www.memorymaestro.com'
 
     resource '*',
       headers: :any,
