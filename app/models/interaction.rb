@@ -8,10 +8,6 @@ class Interaction < ApplicationRecord
   CORRECT_THRESHOLD = 0.85
   OVERRIDE_THRESHOLD = 0.95
 
-  def fae_display_field
-    title
-  end
-
   #acts_as_list add_new_at: :top
   default_scope { order('updated_at DESC') }
 
