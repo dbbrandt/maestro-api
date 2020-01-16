@@ -3,7 +3,7 @@ class CreateRoundResponses < ActiveRecord::Migration[5.1]
     create_table :round_responses do |t|
       t.string :answer
       t.float :score
-      t.boolean :is_corrects
+      t.boolean :is_correct
       t.boolean :review_is_correct
       t.string :descriptor
       t.references :round, foreign_key: true
