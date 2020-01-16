@@ -19,8 +19,8 @@ Rails.application.routes.draw do
             post :generate
           end
         end
-        resource :rounds do
-          resource :round_responses
+        resources :rounds do
+          resources :round_responses
         end
       end
 

@@ -46,7 +46,7 @@ RSpec.describe 'round API', type: :request do
     # Test suite for GET /goal/:goal_id/interactions
     describe 'GET /api/goals/:goal_id/rounds' do
       # make HTTP get request before each example
-      before { get "/api/goals/#{goal_id}/rounds" }
+      before { get "/api/goals/#{goal_id}/rounds?user_id=#{user.id}" }
 
       it 'returns rounds' do
         # Note `json` is a custom helper to parse JSON responses
