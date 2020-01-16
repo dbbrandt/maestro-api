@@ -2,13 +2,13 @@
 require 'rails_helper'
 
 RSpec.describe 'round API', type: :request do
+  let!(:user) { create(:user) }
   let!(:goal) { create(:goal) }
   let!(:goal_id) { goal.id }
-  let!(:user) { create(:user) }
   let!(:rounds) { create_list(:round, 10, goal: goal, user: user) }
   let!(:round) { rounds.first }
+  let!(:responses) {  create_list(:round_response, 10, round: round ) }
   let(:round_id) { round.id }
-
 
   context 'requests without a goal specified should fail' do
     describe 'GET /api/rounds' do
@@ -46,7 +46,9 @@ RSpec.describe 'round API', type: :request do
     # Test suite for GET /goal/:goal_id/interactions
     describe 'GET /api/goals/:goal_id/rounds' do
       # make HTTP get request before each example
-      before { get "/api/goals/#{goal_id}/rounds?user_id=#{user.id}" }
+      before do
+        get "/api/goals/#{goal_id}/rounds?user_id=#{user.id}"
+      end
 
       it 'returns rounds' do
         # Note `json` is a custom helper to parse JSON responses
@@ -56,6 +58,25 @@ RSpec.describe 'round API', type: :request do
 
       it 'returns status code 200' do
         expect(response).to have_http_status(200)
+      end
+    end
+
+    describe 'GET /api/goals/:goal_id/rounds with params' do
+      # make HTTP get request before each example
+      before do
+        get "/api/goals/#{goal_id}/rounds?user_id=#{user.id}&deep=true"
+      end
+
+      it 'returns status code 200' do
+        expect(response).to have_http_status(200)
+      end
+
+      it 'returns deep interactions' do
+        # Note `json` is a custom helper to parse JSON responses
+        expect(json).not_to be_empty
+        expect(json[0]).not_to be_nil
+        res = json[0]["round_responses"] || []
+        expect(res.size).to eq(10)
       end
     end
   end

@@ -7,4 +7,5 @@ class Goal < ApplicationRecord
   has_many :contents, through: :interactions
   has_many :rounds
   has_many :round_responses, through: :rounds
+  belongs_to :user
 end
