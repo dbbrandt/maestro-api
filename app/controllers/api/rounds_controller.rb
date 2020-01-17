@@ -23,7 +23,7 @@ class Api::RoundsController < ApplicationController
   end
 
   def set_round
-    return unless params['round']
+    return unless params['round_id']
     @round = Round.where(id: round_id).first
   end
 
