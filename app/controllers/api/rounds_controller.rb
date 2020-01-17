@@ -40,12 +40,21 @@ class Api::RoundsController < ApplicationController
         goal_id: round.goal_id,
         user_id: @user.id,
         title: @goal.title,
-        round_responses: deep ? deep_responses(round) : round.round_responses.count,
+        round_responses: deep ? deep_responses(round) : response_counts(round),
         created_at: round.created_at,
         updated_at: round.updated_at
     }
   end
 
+  def response_counts(round)
+    total = round.round_responses.count
+    correct = round.round_responses.select {|r| r.review_is_correct }.count
+    {
+        total: total,
+        correct: correct,
+        score: (100 * correct / total).round
+    }
+  end
   def deep_responses(round)
     round.round_responses.each do |response|
       response_list(response)
