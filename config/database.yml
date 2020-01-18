@@ -24,5 +24,5 @@ production:
   <<: *default
   database: maestro_api
   host: <%= ENV["MM_DB_HOST"] %>
-  username: <%= ENV["MM_DB_USER"] %>
+  username: <%= ENV["MM_DB_USERNAME"] %>
   password: <%= ENV["MM_DB_PASSWORD"] %>
