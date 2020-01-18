@@ -52,7 +52,7 @@ class Api::RoundsController < ApplicationController
     {
         total: total,
         correct: correct,
-        score: (100 * correct / total).round
+        score: total > 0 ? (100 * correct / total).round : 0
     }
   end
   def deep_responses(round)
