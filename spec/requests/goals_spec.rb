@@ -2,7 +2,8 @@
 require 'rails_helper'
 
 RSpec.describe 'Goals API', type: :request do
-  # initialize test data 
+  # initialize test data
+  let!(:user) { create(:user) }
   let!(:goals) { create_list(:goal, 10) }
   let(:goal_id) { goals.first.id }
 
@@ -53,7 +54,7 @@ RSpec.describe 'Goals API', type: :request do
   # Test suite for POST /goals
   describe 'POST /api/goals' do
     # valid payload
-    let(:valid_attributes) { { title: 'Learn Actor Names' } }
+    let(:valid_attributes) { { title: 'Learn Actor Names', user: user } }
 
     context 'when the request is valid' do
       before { post '/api/goals', params: valid_attributes }
