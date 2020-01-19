@@ -1,6 +1,8 @@
 
 module Api
   class InteractionsController < ApplicationController
+    include S3Bucket
+
     before_action :set_goal
 
     MM_API_PY_URL="http://api.memorymaestro.com/mm-api-py"
@@ -44,6 +46,13 @@ module Api
       head :no_content
     end
 
+    def presigned_url
+      filename = params['filename']
+      bad_request('Filename not provided!') unless filename
+      key = s3_bucket_path(@interaction.goal, "#{@interaction.id}-#{filename}")
+      json_response({url: s3_presigned_url(key)})
+    end
+
     # GET /goals/:goals_id/interactions/:id?answer=
     def check_answer
       answer = params['answer']
@@ -62,7 +71,7 @@ module Api
           # We still want to see what the api returns
           correct = results['correct'] unless correct && @interaction.score_override?(score)
         else
-          logger.error "check_answer: Https request faild with #{response.code} - #{response.body}"
+          logger.error "check_answer: Https request failed with #{response.code} - #{response.body}"
         end
       end
       json_response({

@@ -228,5 +228,29 @@ RSpec.describe 'interactions API', type: :request do
         end
       end
     end
+
+    # Test suite for GET /goals/:goal_id/interactions/:id/presigned_url
+    describe 'GET /api/goals/:goal_id/interaction/:id/presigned_url' do
+
+      context 'when the filename is passed' do
+        before do
+          get "/api/goals/#{goal_id}/interactions/#{interaction_id}/presigned_url?filename=test"
+        end
+
+        it 'returns status code 200' do
+          expect(response).to have_http_status(200)
+        end
+
+        it 'returns a url' do
+          expect(json['url']).not_to be_nil
+        end
+
+        it 'returns a url with the proper file path' do
+          url = json['url']
+          expect(url).to include 'http'
+          expect(url).to include interaction.id.to_s
+        end
+      end
+    end
   end
 end

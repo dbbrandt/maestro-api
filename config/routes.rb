@@ -7,10 +7,12 @@ Rails.application.routes.draw do
       resources :goals do
         member do
           delete :purge
+          get :presigned_url
         end
         resources :interactions do
           member do
             get :check_answer
+            get :presigned_url
             post :submit_review
           end
         end

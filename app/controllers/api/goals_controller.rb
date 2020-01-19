@@ -1,11 +1,11 @@
 module Api
   class GoalsController < ApplicationController
-    before_action :set_goal, only: [:show, :update, :destroy, :purge]
+    include S3Bucket
+    before_action :set_goal, only: [:show, :update, :destroy, :purge, :presigned_url]
 
     # GET /goals
     def index
       @goals = Goal.all
-      # result = @goals.map {|g| goal_response(g)}
       json_response(@goals)
     end
 
@@ -38,11 +38,18 @@ module Api
       head :no_content
     end
 
+    def presigned_url
+      filename = params['filename']
+      bad_request('Filename not provided!') unless filename
+      key = s3_bucket_path(@goal,filename)
+      json_response({url: s3_presigned_url(key)})
+    end
+
     private
 
     def goal_params
       # whitelist params
-      params.permit(:title,  :description, :instructions, :user_id)
+      params.permit(:title,  :description, :instructions, :image_url, :user_id)
     end
 
     def set_goal
