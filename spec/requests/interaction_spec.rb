@@ -249,6 +249,7 @@ RSpec.describe 'interactions API', type: :request do
           url = json['url']
           expect(url).to include 'http'
           expect(url).to include interaction.id.to_s
+          expect(url).to include json['filename']
         end
       end
     end

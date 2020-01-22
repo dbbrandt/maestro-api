@@ -50,7 +50,7 @@ module Api
       filename = params['filename']
       bad_request('Filename not provided!') unless filename
       key = s3_bucket_path(@interaction.goal, "#{@interaction.id}-#{filename}")
-      json_response({url: s3_presigned_url(key)})
+      json_response(s3_presigned_url(key))
     end
 
     # GET /goals/:goals_id/interactions/:id?answer=

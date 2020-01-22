@@ -165,6 +165,7 @@ RSpec.describe 'Goals API', type: :request do
           expect(url).to include 'http'
           name = goal.title.gsub(/[^0-9A-Za-z]/, '')
           expect(url).to include "#{goal.id}-#{name}/test"
+          expect(url).to include json['filename']
         end
       end
     end

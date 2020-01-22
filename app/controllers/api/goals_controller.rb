@@ -42,7 +42,7 @@ module Api
       filename = params['filename']
       bad_request('Filename not provided!') unless filename
       key = s3_bucket_path(@goal,filename)
-      json_response({url: s3_presigned_url(key)})
+      json_response(s3_presigned_url(key))
     end
 
     private

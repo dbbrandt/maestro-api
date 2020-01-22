@@ -18,7 +18,9 @@ module S3Bucket
     resource = Aws::S3::Resource.new(client: @s3)
     bucket = resource.bucket(@bucket)
     obj = bucket.object(key)
-    obj.presigned_url(:put)
+    url = obj.presigned_url(:put)
+    filename = url.match(/(^.*)\?/)[1]
+    { url: url, filename: filename }
   end
 
   def s3_bucket_path(goal, filename)
