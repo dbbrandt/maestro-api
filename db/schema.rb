@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20200107183123) do
+ActiveRecord::Schema.define(version: 20200111001058) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -70,7 +70,7 @@ ActiveRecord::Schema.define(version: 20200107183123) do
     t.index ["import_row_id"], name: "index_interactions_on_import_row_id"
   end
 
-  create_table "round_responses", force: :cascade do |t|
+  create_table "round_responses", id: :bigint, default: -> { "nextval('responses_id_seq'::regclass)" }, force: :cascade do |t|
     t.string "answer"
     t.float "score"
     t.boolean "is_correct"
@@ -80,16 +80,16 @@ ActiveRecord::Schema.define(version: 20200107183123) do
     t.bigint "interaction_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["interaction_id"], name: "index_round_responses_on_interaction_id"
-    t.index ["round_id"], name: "index_round_responses_on_round_id"
+    t.index ["interaction_id"], name: "index_responses_on_interaction_id"
+    t.index ["round_id"], name: "index_responses_on_round_id"
   end
 
   create_table "rounds", force: :cascade do |t|
     t.string "notes"
     t.bigint "goal_id"
-    t.bigint "user_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "user_id"
     t.index ["goal_id"], name: "index_rounds_on_goal_id"
     t.index ["user_id"], name: "index_rounds_on_user_id"
   end

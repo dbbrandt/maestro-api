@@ -15,18 +15,19 @@ module S3Bucket
   end
 
   def s3_presigned_url(key)
-    resource = Aws::S3::Resource.new(client: @s3)
-    bucket = resource.bucket(@bucket)
-    obj = bucket.object(key)
-    url = obj.presigned_url(:put)
+    url = s3_presigner(key)
     filename = url.match(/(^.*)\?/)[1]
     { url: url, filename: filename }
+  end
+
+  def s3_presigner(key)
+    @signer.presigned_url(:put_object, bucket: @bucket, key: key)
   end
 
   def s3_bucket_path(goal, filename)
     return unless goal
     name = goal.title.gsub(/[^0-9A-Za-z]/, '')
-    "#{goal.id}-#{name}/#{filename}"
+    "goals/#{goal.id}-#{name}/#{filename}"
   end
 end
 
