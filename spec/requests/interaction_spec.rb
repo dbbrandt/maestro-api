@@ -230,7 +230,7 @@ RSpec.describe 'interactions API', type: :request do
     end
 
     # Test suite for GET /goals/:goal_id/interactions/:id/presigned_url
-    describe 'GET /api/goals/:goal_id/interaction/:id/presigned_url' do
+    describe 'GET /api/goals/:goal_id/interactions/:id/presigned_url' do
 
       context 'when the filename is passed' do
         before do
@@ -250,6 +250,16 @@ RSpec.describe 'interactions API', type: :request do
           expect(url).to include 'http'
           expect(url).to include interaction.id.to_s
           expect(url).to include json['filename']
+        end
+      end
+
+      context 'when the filename is passed' do
+        before do
+          get "/api/goals/#{goal_id}/interactions/#{interaction_id}/presigned_url"
+        end
+
+        it 'returns status code 400' do
+          expect(response).to have_http_status(400)
         end
       end
     end
