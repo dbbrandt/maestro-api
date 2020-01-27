@@ -175,17 +175,17 @@ module Api
     end
 
     def create_or_update_prompt
-      prompt = @interaction.prompt
       values = params['prompt']
-      title = values['title'].blank? ? params['title'] : values['title']
-      copy = values['copy']
-      #TODO support saving stimulus_url
-      if prompt
-        prompt.title = title
-        prompt.copy = copy
-        prompt.save
+      prompt = {
+          title: values['title'].blank? ? params['title'] : values['title'],
+          copy: values['copy'],
+          stimulus_url: values['stimulus_url'],
+          content_type: Content::PROMPT
+      }
+      if @interaction.prompt
+        @interaction.prompt.update_attributes(prompt)
       else
-        @interaction.contents.create!( content_type: Content::PROMPT, title: title, copy: copy)
+        @interaction.contents.create!(prompt)
       end
     end
 

@@ -10,5 +10,11 @@ class Content < ApplicationRecord
   validates_presence_of :title
   validates_inclusion_of :content_type, in: TYPES
 
-  validates_presence_of :stimulus_url, unless: :copy?
+  def validate
+    if content_type == PROMPT && stimulus_url.blank? && copy.blank?
+      errors.add :base, "Prompt must have a stimulus image or copy."
+    elsif descriptor.blank?
+      errors.add :base, "Criterion must have a descriptor (correct answer)."
+    end
+  end
 end
