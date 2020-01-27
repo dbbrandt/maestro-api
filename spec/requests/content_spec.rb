@@ -8,7 +8,8 @@ RSpec.describe 'Contents API', type: :request do
   let!(:interaction_id) { interaction.id }
   let!(:contents) { create_list(:content, 10, interaction: interaction) }
   let(:content_id) { contents.first.id }
-  let(:valid_attributes) { { title: 'Tom Hanks', content_type: 'Prompt' , copy: 'Test'} }
+  let(:valid_prompt) { {title: 'Tom Hanks', content_type: 'Prompt' , copy: 'Test'} }
+  let(:valid_criterion) { {title: 'Tom Hanks', content_type: 'Criterion' , descriptor: 'Test'} }
 
   # Test reject requests that are not permitted for this resource
   context 'requests without a interaction specified should fail' do
@@ -92,10 +93,10 @@ RSpec.describe 'Contents API', type: :request do
     # Test suite for POST /api/interaction/:interaction_id/contents
     describe 'POST /api/interaction/:interaction_id/contents' do
       # valid payload
-      context 'when the request is valid' do
-        before { post "/api/interactions/#{interaction_id}/contents", params: valid_attributes }
+      context 'when the request is a valid' do
+        before { post "/api/interactions/#{interaction_id}/contents", params: valid_prompt }
 
-        it 'creates a interaction' do
+        it 'creates prompt contents' do
           expect(json['title']).to eq('Tom Hanks')
         end
 
@@ -116,13 +117,53 @@ RSpec.describe 'Contents API', type: :request do
               .to match(/Validation failed: Content type is not included in the list/)
         end
       end
+
+      context 'when the request is invalid prompt' do
+        before { post "/api/interactions/#{interaction_id}/contents",
+                      params: { title: "Meryl Streep", content_type: "Prompt"} }
+
+        it 'returns status code 422' do
+          expect(response).to have_http_status(422)
+        end
+
+        it 'returns a validation failure message' do
+          expect(response.body)
+              .to match(/Prompt must have a stimulus image or copy/)
+        end
+      end
+
+      context 'when the request is a valid criterion' do
+        before { post "/api/interactions/#{interaction_id}/contents", params: valid_criterion }
+
+        it 'creates a interaction' do
+          expect(json['title']).to eq('Tom Hanks')
+        end
+
+        it 'returns status code 201' do
+          expect(response).to have_http_status(201)
+        end
+      end
+
+      context 'when the request is invalid criterion' do
+        before { post "/api/interactions/#{interaction_id}/contents",
+                      params: { title: "Meryl Streep", content_type: "Criterion", copy: "test"} }
+
+        it 'returns status code 422' do
+          expect(response).to have_http_status(422)
+        end
+
+        it 'returns a validation failure message' do
+          expect(response.body)
+              .to match(/Criterion must have a descriptor/)
+        end
+      end
     end
 
     # Test suite for PUT /api/interaction/:interaction_id/contents/:id
     describe 'PUT /api/interaction/:interaction_id/contents/:id' do
 
       context 'when the record exists' do
-        before { put "/api/interactions/#{interaction_id}/contents/#{content_id}", params: valid_attributes }
+        before { put "/api/interactions/#{interaction_id}/contents/#{content_id}", params: valid_prompt }
 
         it 'updates the record' do
           expect(response.body).to be_empty
@@ -134,7 +175,7 @@ RSpec.describe 'Contents API', type: :request do
       end
 
       context 'when the record does not exists' do
-        before { put "/api/interactions/#{interaction_id}/contents/100", params: valid_attributes }
+        before { put "/api/interactions/#{interaction_id}/contents/100", params: valid_prompt }
 
         it 'returns status code 404' do
           expect(response).to have_http_status(404)

@@ -253,7 +253,7 @@ RSpec.describe 'interactions API', type: :request do
         end
       end
 
-      context 'when the filename is passed' do
+      context 'when the filename is not passed' do
         before do
           get "/api/goals/#{goal_id}/interactions/#{interaction_id}/presigned_url"
         end
