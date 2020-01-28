@@ -36,6 +36,8 @@ gem 'amatch', '~> 0.4'
 # Support External API Calls
 gem 'httparty', '~> 0.17'
 
+# Support generating pre-signed URL for S3
+gem 'aws-sdk'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

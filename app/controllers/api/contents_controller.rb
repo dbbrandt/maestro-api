@@ -1,6 +1,6 @@
 module Api
   class ContentsController < ApplicationController
-    before_action :set_interaction
+       before_action :set_interaction
 
     # GET /interactions/:interaction_id/contents
     def index

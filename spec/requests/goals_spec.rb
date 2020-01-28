@@ -2,9 +2,11 @@
 require 'rails_helper'
 
 RSpec.describe 'Goals API', type: :request do
-  # initialize test data 
+  # initialize test data
+  let!(:user) { create(:user) }
   let!(:goals) { create_list(:goal, 10) }
-  let(:goal_id) { goals.first.id }
+  let(:goal) { goals.first }
+  let(:goal_id) { goal.id }
 
   # Test suite for GET /goals
   describe 'GET /api/goals' do
@@ -53,7 +55,7 @@ RSpec.describe 'Goals API', type: :request do
   # Test suite for POST /goals
   describe 'POST /api/goals' do
     # valid payload
-    let(:valid_attributes) { { title: 'Learn Actor Names' } }
+    let(:valid_attributes) { { title: 'Learn Actor Names', user_id: user.id } }
 
     context 'when the request is valid' do
       before { post '/api/goals', params: valid_attributes }
@@ -140,7 +142,33 @@ RSpec.describe 'Goals API', type: :request do
         get "/api/goals/#{goal_id}/interactions"
         expect(json).to be_empty
       end
+    end
 
+    # Test suite for GET /goals/:id/presigned_url
+    describe 'GET /api/goals/:id/presigned_url' do
+
+      context 'when the filename is passed' do
+        before do
+          get "/api/goals/#{goal_id}/presigned_url?filename=test"
+        end
+
+        it 'returns status code 200' do
+          expect(response).to have_http_status(200)
+        end
+
+        it 'returns a url' do
+          expect(json['url']).not_to be_nil
+        end
+
+        it 'returns a url with the proper file path' do
+          url = json['url']
+          expect(url).to include 'http'
+          expect(url).to include 'goals/  '
+          name = goal.title.gsub(/[^0-9A-Za-z]/, '')
+          expect(url).to include "#{goal.id}-#{name}/test"
+          expect(url).to include json['filename']
+        end
+      end
     end
   end
 end

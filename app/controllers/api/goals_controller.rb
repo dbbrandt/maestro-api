@@ -1,29 +1,29 @@
 module Api
   class GoalsController < ApplicationController
-    before_action :set_goal, only: [:show, :update, :destroy, :purge]
+    include S3Bucket
+    before_action :set_goal, only: [:show, :update, :destroy, :purge, :presigned_url]
 
     # GET /goals
     def index
       @goals = Goal.all
-      result = @goals.map {|g| goal_response(g)}
-      json_response(result)
+      json_response(@goals)
     end
 
     # POST /goals
     def create
       @goal = Goal.create!(goal_params)
-      json_response(goal_response(@goal), :created)
+      json_response(@goal, :created)
     end
 
     # GET /goals/:id
     def show
-      json_response(goal_response(@goal))
+      json_response(@goal)
     end
 
     # PUT /goals/:id
     def update
       @goal.update(goal_params)
-      json_response(goal_response(@goal))
+      json_response(@goal)
     end
 
     # DELETE /goals/:id
@@ -38,28 +38,22 @@ module Api
       head :no_content
     end
 
+    def presigned_url
+      filename = params['filename']
+      bad_request('Filename not provided!') unless filename
+      key = s3_bucket_path(@goal,filename)
+      json_response(s3_presigned_url(key))
+    end
 
     private
 
     def goal_params
       # whitelist params
-      params.permit(:title,  :description, :instructions)
+      params.permit(:title,  :description, :instructions, :image_url, :user_id)
     end
 
     def set_goal
       @goal = Goal.preload(:interactions, :contents).find(params[:id])
-    end
-
-    def goal_response(goal)
-      {
-          id: goal.id,
-          title: goal.title,
-          description: goal.description,
-          instructions: goal.instructions,
-          image_url: goal.image_url,
-          created_at: goal.created_at,
-          updated_at: goal.updated_at,
-      }
     end
   end
 end

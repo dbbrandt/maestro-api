@@ -4,7 +4,8 @@ module CsvLoader
   attr_accessor :csv_filename
   attr_accessor :json_data
 
-  # Load a csv file into an array of hashes with the hearder row used for keys
+  # Load a csv file into an array of hashes with the header row used for keys
+  # keys is set to the first row
   def load(file = @csv_filename)
     keys = nil
     csv_data = []

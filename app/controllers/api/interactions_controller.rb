@@ -1,6 +1,8 @@
 
 module Api
   class InteractionsController < ApplicationController
+    include S3Bucket
+
     before_action :set_goal
 
     MM_API_PY_URL="http://api.memorymaestro.com/mm-api-py"
@@ -44,6 +46,16 @@ module Api
       head :no_content
     end
 
+    def presigned_url
+      filename = params['filename']
+      if filename
+        key = s3_bucket_path(@interaction.goal, "#{@interaction.id}-#{filename}")
+        json_response(s3_presigned_url(key))
+      else
+        bad_request('Filename not provided!')
+      end
+    end
+
     # GET /goals/:goals_id/interactions/:id?answer=
     def check_answer
       answer = params['answer']
@@ -62,7 +74,7 @@ module Api
           # We still want to see what the api returns
           correct = results['correct'] unless correct && @interaction.score_override?(score)
         else
-          logger.error "check_answer: Https request faild with #{response.code} - #{response.body}"
+          logger.error "check_answer: Https request failed with #{response.code} - #{response.body}"
         end
       end
       json_response({
@@ -163,17 +175,17 @@ module Api
     end
 
     def create_or_update_prompt
-      prompt = @interaction.prompt
       values = params['prompt']
-      title = values['title'].blank? ? params['title'] : values['title']
-      copy = values['copy']
-      #TODO support saving stimulus_url
-      if prompt
-        prompt.title = title
-        prompt.copy = copy
-        prompt.save
+      prompt = {
+          title: values['title'].blank? ? params['title'] : values['title'],
+          copy: values['copy'],
+          stimulus_url: values['stimulus_url'],
+          content_type: Content::PROMPT
+      }
+      if @interaction.prompt
+        @interaction.prompt.update_attributes(prompt)
       else
-        @interaction.contents.create!( content_type: Content::PROMPT, title: title, copy: copy)
+        @interaction.contents.create!(prompt)
       end
     end
 

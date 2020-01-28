@@ -44,7 +44,7 @@ module Api
       end
     end
 
-    def authorize_role(role = 'ecommerce')
+    def authorize_role(role = 'admin')
       forbidden! unless @current_user.has_role?(role)
     end
   end
