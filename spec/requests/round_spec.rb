@@ -99,5 +99,22 @@ RSpec.describe 'round API', type: :request do
       end
     end
 
+    describe 'GET /api/goals/:goal_id/rounds/:id' do
+      # make HTTP get request before each example
+      before do
+        get "/api/goals/#{goal_id}/rounds/#{round_id}/round_responses"
+      end
+
+      it 'returns status code 200' do
+        expect(response).to have_http_status(200)
+      end
+
+      it 'returns responses' do
+        # Note `json` is a custom helper to parse JSON responses
+        expect(json).not_to be_empty
+        expect(json[0]).not_to be_nil
+        expect(json.count).to eq(10)
+      end
+    end
   end
 end
