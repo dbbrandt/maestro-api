@@ -23,8 +23,8 @@ class Api::RoundsController < ApplicationController
   end
 
   def set_round
-    return unless params['round_id']
-    @round = Round.where(id: round_id).first
+    return unless params['id']
+    @round = Round.where(id: params['id']).first
   end
 
   # TODO use auth to determine current user.
