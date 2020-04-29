@@ -8,7 +8,7 @@ class Api::RoundsController < ApplicationController
   end
 
   def show
-    json_response(@round)
+    json_response(rounds_list(@round, !!params['deep']))
   end
 
   private
