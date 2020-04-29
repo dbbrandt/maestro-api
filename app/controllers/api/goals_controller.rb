@@ -53,7 +53,7 @@ module Api
     end
 
     def set_goal
-      @goal = Goal.preload(:interactions, :contents).find(params[:id])
+      @goal = Goal.includes(:interactions, :contents).find(params[:id])
     end
   end
 end

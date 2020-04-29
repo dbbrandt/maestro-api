@@ -24,11 +24,11 @@ class Api::RoundResponsesController < ApplicationController
     set_user
     return unless params['round_id']
     @round = Round.where(id: params['round_id'], user_id: @user).first
-    set_round_response
+    set_round_response if @round
   end
 
   def set_round_response
-    @response = @round.round_responses.find { |r| r.id == params[:id].to_i} if @round
+    @response = @round.round_responses.find { |r| r.id == params[:id].to_i}
   end
 
   # TODO use auth to determine current user.
