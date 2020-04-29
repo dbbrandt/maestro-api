@@ -7,7 +7,7 @@ class Api::RoundResponsesController < ApplicationController
   end
 
   def show
-    json_response(@response)
+    json_response(params['deep'] ? deep_response(@response) : @response)
   end
 
   private
@@ -16,14 +16,14 @@ class Api::RoundResponsesController < ApplicationController
     # require the goal context for all round requests
     return unless params['goal_id']
     # TODO modify when user model and security incorporate
-    @goal = Goal.preload(:interactions, :contents).find(params[:goal_id])
+    @goal = Goal.includes(:interactions, :contents).find(params[:goal_id])
     set_round if @goal
   end
 
   def set_round
     set_user
     return unless params['round_id']
-    @round = Round.where(id: params['round_id'], user_id: @user).first
+    @round = Round.includes(:round_responses).where(id: params['round_id'], user_id: @user).first
     set_round_response if @round
   end
 
@@ -36,6 +36,18 @@ class Api::RoundResponsesController < ApplicationController
   def set_user
     user_id = params['user_id']
     @user = user_id ? User.find(user_id) : User.find(1)
+  end
+
+  def deep_response(response)
+    response.attributes.merge(deep_interaction(response.interaction))
+  end
+
+  def deep_interaction(interaction)
+    { interaction: interaction.attributes.merge(deep_contents(interaction.contents)) }
+  end
+
+  def deep_contents(contents)
+    { contents: contents.map {|c| c.attributes} }
   end
 end
 

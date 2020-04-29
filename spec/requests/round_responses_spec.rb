@@ -44,7 +44,7 @@ RSpec.describe 'round responses API', type: :request do
     end
   end
 
-  context 'requests with a goal' do
+  context 'round_responses requests with a goal' do
     # Test suite for GET /goal/:goal_id/rounds/:id/round_responses
     describe 'GET /api/goals/:goal_id/rounds/:id/round_responses' do
       # make HTTP get request before each example
@@ -82,4 +82,22 @@ RSpec.describe 'round responses API', type: :request do
     end
   end
 
+  describe 'GET /api/goals/:goal_id/rounds/:round_id/round_responses/:id?deep' do
+    # make HTTP get request before each example
+    before do
+      get "/api/goals/#{goal_id}/rounds/#{round_id}/round_responses/#{response_id}?deep=true&user_id=#{user.id}"
+    end
+
+    it 'returns status code 200' do
+      expect(response).to have_http_status(200)
+    end
+
+    it 'returns round response' do
+      # Note `json` is a custom helper to parse JSON responses
+      expect(json).not_to be_empty
+      expect(json['id']).to eq(response_id)
+      expect(json['interaction']).not_to be_empty
+      expect(json['interaction']['contents']).not_to be_nil
+    end
+  end
 end
