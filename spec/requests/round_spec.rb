@@ -75,8 +75,7 @@ RSpec.describe 'round API', type: :request do
         # Note `json` is a custom helper to parse JSON responses
         expect(json).not_to be_empty
         expect(json[0]).not_to be_nil
-        res = json[0]["round_responses"]
-        expect(res['total']).to eq(10)
+        expect(json[0]['total']).to eq(10)
       end
     end
 
