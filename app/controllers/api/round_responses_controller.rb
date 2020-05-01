@@ -2,7 +2,7 @@ class Api::RoundResponsesController < ApplicationController
   before_action :set_goal
 
   def index
-    result = @round.round_responses
+    result = params['deep'] ? deep_responses : @round.round_responses
     json_response(result)
   end
 
@@ -36,6 +36,10 @@ class Api::RoundResponsesController < ApplicationController
   def set_user
     user_id = params['user_id']
     @user = user_id ? User.find(user_id) : User.find(1)
+  end
+
+  def deep_responses
+    @round.round_responses.map {|r| deep_response(r)}
   end
 
   def deep_response(response)
