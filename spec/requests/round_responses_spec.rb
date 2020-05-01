@@ -119,7 +119,7 @@ RSpec.describe 'round responses API', type: :request do
       expect(json).not_to be_empty
       expect(json['id']).to eq(response_id)
       expect(json['interaction']).not_to be_empty
-      expect(json['interaction']['contents']).not_to be_nil
+      expect(json['interaction']['answer_type']).not_to be_nil
     end
   end
 end

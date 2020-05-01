@@ -47,11 +47,20 @@ class Api::RoundResponsesController < ApplicationController
   end
 
   def deep_interaction(interaction)
-    { interaction: interaction.attributes.merge(deep_contents(interaction.contents)) }
+    { interaction: interaction.attributes.merge(deep_contents(interaction)) }
   end
 
-  def deep_contents(contents)
-    { contents: contents.map {|c| c.attributes} }
+  def deep_contents(interaction)
+    contents = interaction.contents.map {|c| c.attributes }
+    if interaction.criterion.length == 1
+      {
+          contents: contents,
+          prompt: interaction.prompt,
+          criterion: interaction.criterion[0]
+      }
+    else
+      { contents: contents }
+    end
   end
 end
 
