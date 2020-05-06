@@ -981,7 +981,7 @@ GEM
       protocol
     multi_xml (0.6.0)
     nio4r (2.5.2)
-    nokogiri (1.10.7)
+    nokogiri (1.10.9)
       mini_portile2 (~> 2.4.0)
     pg (1.2.1)
     protocol (1.0.1)
