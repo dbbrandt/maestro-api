@@ -8,7 +8,7 @@ class Api::RoundsController < ApplicationController
   end
 
   def show
-    json_response(@round)
+    json_response(rounds_list(@round, !!params['deep']))
   end
 
   private
@@ -23,8 +23,8 @@ class Api::RoundsController < ApplicationController
   end
 
   def set_round
-    return unless params['round_id']
-    @round = Round.where(id: round_id).first
+    return unless params['id']
+    @round = Round.where(id: params['id']).first
   end
 
   # TODO use auth to determine current user.
@@ -35,26 +35,22 @@ class Api::RoundsController < ApplicationController
   end
 
   def rounds_list(round, deep = false)
+    total = round.round_responses.count
+    correct = round.round_responses.select {|r| r.review_is_correct }.count
     {
         id: round.id,
         goal_id: round.goal_id,
         user_id: @user.id,
         title: @goal.title,
-        round_responses: deep ? deep_responses(round) : response_counts(round),
+        total: total,
+        correct: correct,
+        score: total > 0 ? (100 * correct / total).round : 0,
+        round_responses: deep ? deep_responses(round) : [],
         created_at: round.created_at,
         updated_at: round.updated_at
     }
   end
 
-  def response_counts(round)
-    total = round.round_responses.count
-    correct = round.round_responses.select {|r| r.review_is_correct }.count
-    {
-        total: total,
-        correct: correct,
-        score: total > 0 ? (100 * correct / total).round : 0
-    }
-  end
   def deep_responses(round)
     round.round_responses.each do |response|
       response_list(response)

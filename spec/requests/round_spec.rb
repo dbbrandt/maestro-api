@@ -43,7 +43,7 @@ RSpec.describe 'round API', type: :request do
   end
 
   context 'requests with a goal' do
-    # Test suite for GET /goal/:goal_id/interactions
+    # Test suite for GET /goal/:goal_id/rounds
     describe 'GET /api/goals/:goal_id/rounds' do
       # make HTTP get request before each example
       before do
@@ -75,8 +75,7 @@ RSpec.describe 'round API', type: :request do
         # Note `json` is a custom helper to parse JSON responses
         expect(json).not_to be_empty
         expect(json[0]).not_to be_nil
-        res = json[0]["round_responses"]
-        expect(res['total']).to eq(10)
+        expect(json[0]['total']).to eq(10)
       end
     end
 
@@ -96,6 +95,40 @@ RSpec.describe 'round API', type: :request do
         expect(json[0]).not_to be_nil
         res = json[0]["round_responses"]
         expect(res.count).to eq(10)
+      end
+    end
+
+    describe 'GET /api/goals/:goal_id/rounds/:id' do
+      # make HTTP get request before each example
+      before do
+        get "/api/goals/#{goal_id}/rounds/#{round_id}?user_id=#{user.id}"
+      end
+
+      it 'returns status code 200' do
+        expect(response).to have_http_status(200)
+      end
+
+      it 'returns round' do
+        # Note `json` is a custom helper to parse JSON responses
+        expect(json).not_to be_empty
+        expect(json['id']).to eq(round_id)
+      end
+    end
+
+    describe 'GET /api/goals/:goal_id/rounds/:id deep responses' do
+      # make HTTP get request before each example
+      before do
+        get "/api/goals/#{goal_id}/rounds/#{round_id}?deep=true&user_id=#{user.id}"
+      end
+
+      it 'returns status code 200' do
+        expect(response).to have_http_status(200)
+      end
+
+      it 'returns round' do
+        # Note `json` is a custom helper to parse JSON responses
+        expect(json).not_to be_empty
+        expect(json['round_responses'].length).to eq(10)
       end
     end
 

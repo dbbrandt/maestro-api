@@ -65,16 +65,21 @@ module Api
       params = "?answer=#{answer}&correct=#{correct_answer}"
       predicted = correct_answer
       if !answer.empty?
-        response = HTTParty.get(MM_API_PY_URL+params)
-        if response.code == 200
-          logger.info("HTTP mm-api-py result: #{response.body}")
-          results = JSON.parse(response.body)
-          predicted = results['prediction']
-          # Use the mm-api-py value unless it's overriden locally by a high score
-          # We still want to see what the api returns
-          correct = results['correct'] unless correct && @interaction.score_override?(score)
+        begin
+          response = HTTParty.get(MM_API_PY_URL+params)
+        rescue => error
+          logger.error "check_answer: Https request failed with #{error.message}"
         else
-          logger.error "check_answer: Https request failed with #{response.code} - #{response.body}"
+          if response.code == 200
+            logger.info("HTTP mm-api-py result: #{response.body}")
+            results = JSON.parse(response.body)
+            predicted = results['prediction']
+            # Use the mm-api-py value unless it's overriden locally by a high score
+            # We still want to see what the api returns
+            correct = results['correct'] unless correct && @interaction.score_override?(score)
+          else
+            logger.error "check_answer: Https request failed with #{response.code} - #{response.body}"
+          end
         end
       end
       json_response({
@@ -107,12 +112,19 @@ module Api
     end
 
     def set_round
-      user = User.create(email: 'test@test.com', password: 'test-test', name: 'test', admin: true )
+      set_user
       if params['round']
         round_id = params['round'].to_i
         @round = Round.where(id: round_id).first
-        @round = Round.create(goal: @goal, user_id: user.id) unless @round
+        @round = Round.create(goal: @goal, user_id: @user.id) unless @round
       end
+    end
+
+    # TODO use auth to determine current user.
+    # Only admin can specify a different user.
+    def set_user
+      user_id = params['user_id']
+      @user = user_id ? User.find(user_id) : User.find(1)
     end
 
     def save_response(answer, score, is_correct, review_is_correct)

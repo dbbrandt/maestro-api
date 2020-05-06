@@ -3,6 +3,7 @@ require 'rails_helper'
 
 RSpec.describe 'interactions API', type: :request do
   # initialize test data
+  let!(:user) { create(:user) }
   let!(:goal) { create(:goal) }
   let!(:goal_id) { goal.id }
   let!(:interactions) { create_list(:interaction, 10, goal: goal) }
@@ -138,7 +139,7 @@ RSpec.describe 'interactions API', type: :request do
     describe 'POST /api/goals/:goal_id/interactions/:id/submit_review' do
       before do
         create(:content, :criterion, interaction: interaction)
-        post "/api/goals/#{goal_id}/interactions/#{interaction_id}/submit_review",
+        post "/api/goals/#{goal_id}/interactions/#{interaction_id}/submit_review?user_id=#{user.id}",
             params: { goal_id: goal_id, id: interaction_id, round: 0, answer: 'Test', score: 90, correct: true, review: true }
       end
 

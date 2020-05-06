@@ -163,7 +163,7 @@ RSpec.describe 'Goals API', type: :request do
         it 'returns a url with the proper file path' do
           url = json['url']
           expect(url).to include 'http'
-          expect(url).to include 'goals/  '
+          expect(url).to include 'goals/'
           name = goal.title.gsub(/[^0-9A-Za-z]/, '')
           expect(url).to include "#{goal.id}-#{name}/test"
           expect(url).to include json['filename']
