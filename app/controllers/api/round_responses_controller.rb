@@ -2,7 +2,7 @@ class Api::RoundResponsesController < ApplicationController
   before_action :set_goal
 
   def index
-    result = params['deep'] ? deep_responses : @round.round_responses
+    result = params['deep'] ? deep_responses : @round.round_responses.sort_by(&:id)
     json_response(result)
   end
 
@@ -39,7 +39,7 @@ class Api::RoundResponsesController < ApplicationController
   end
 
   def deep_responses
-    @round.round_responses.map {|r| deep_response(r)}
+    @round.round_responses.map {|r| deep_response(r)}.sort_by {|r| r["id"]}
   end
 
   def deep_response(response)
