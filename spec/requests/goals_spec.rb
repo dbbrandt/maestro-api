@@ -3,10 +3,10 @@ require 'rails_helper'
 
 RSpec.describe 'Goals API', type: :request do
   # initialize test data
-  let!(:user) { create(:user) }
   let!(:goals) { create_list(:goal, 10) }
   let(:goal) { goals.first }
   let(:goal_id) { goal.id }
+  let(:user_id) { goal.user_id }
 
   # Test suite for GET /goals
   describe 'GET /api/goals' do
@@ -26,7 +26,7 @@ RSpec.describe 'Goals API', type: :request do
 
   # Test suite for GET /goals/:id
   describe 'GET /api/goals/:id' do
-    before { get "/api/goals/#{goal_id}" }
+    before { get "/api/goals/#{goal_id}?user_id=#{user_id}" }
 
     context 'when the record exists' do
       it 'returns the goal' do
@@ -143,31 +143,31 @@ RSpec.describe 'Goals API', type: :request do
         expect(json).to be_empty
       end
     end
+  end
 
-    # Test suite for GET /goals/:id/presigned_url
-    describe 'GET /api/goals/:id/presigned_url' do
+  # Test suite for GET /goals/:id/presigned_url
+  describe 'GET /api/goals/:id/presigned_url' do
 
-      context 'when the filename is passed' do
-        before do
-          get "/api/goals/#{goal_id}/presigned_url?filename=test"
-        end
+    context 'when the filename is passed' do
+      before do
+        get "/api/goals/#{goal_id}/presigned_url?filename=test"
+      end
 
-        it 'returns status code 200' do
-          expect(response).to have_http_status(200)
-        end
+      it 'returns status code 200' do
+        expect(response).to have_http_status(200)
+      end
 
-        it 'returns a url' do
-          expect(json['url']).not_to be_nil
-        end
+      it 'returns a url' do
+        expect(json['url']).not_to be_nil
+      end
 
-        it 'returns a url with the proper file path' do
-          url = json['url']
-          expect(url).to include 'http'
-          expect(url).to include 'goals/'
-          name = goal.title.gsub(/[^0-9A-Za-z]/, '')
-          expect(url).to include "#{goal.id}-#{name}/test"
-          expect(url).to include json['filename']
-        end
+      it 'returns a url with the proper file path' do
+        url = json['url']
+        expect(url).to include 'http'
+        expect(url).to include 'goals/'
+        name = goal.title.gsub(/[^0-9A-Za-z]/, '')
+        expect(url).to include "#{goal.id}-#{name}/test"
+        expect(url).to include json['filename']
       end
     end
   end

@@ -34,6 +34,12 @@ Rails.application.routes.draw do
       resources :import_files do
         resources :import_rows
       end
+
+      resources :users do
+        member do
+          delete :purge
+        end
+      end
     end
   end
   root  :to => 'api/goals#index'

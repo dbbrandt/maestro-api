@@ -1,16 +1,18 @@
 module Api
   class GoalsController < ApplicationController
     include S3Bucket
-    before_action :set_goal, only: [:show, :update, :destroy, :purge, :presigned_url]
+    before_action :set_goal, except: [:create, :index]
 
     # GET /goals
     def index
+      @goals =  @user ? Goal.where(user: @user) : Goal.all
       @goals = Goal.all
       json_response(@goals)
     end
 
     # POST /goals
     def create
+      set_user unless @user
       @goal = Goal.create!(goal_params)
       json_response(@goal, :created)
     end
@@ -41,7 +43,7 @@ module Api
     def presigned_url
       filename = params['filename']
       bad_request('Filename not provided!') unless filename
-      key = s3_bucket_path(@goal,filename)
+      key = s3_bucket_path('goals', @goal.id, @goal.title ,filename)
       json_response(s3_presigned_url(key))
     end
 
@@ -53,7 +55,15 @@ module Api
     end
 
     def set_goal
-      @goal = Goal.includes(:interactions, :contents).find(params[:id])
+      set_user
+      @goal = Goal.includes(:interactions, :contents).where(id: params[:id], user: @user)
+    end
+
+    # TODO use auth to determine current user.
+    # Only admin can specify a different user.
+    def set_user
+      user_id = params['user_id']
+      @user = user_id ? User.find(user_id) : User.find(1)
     end
   end
 end

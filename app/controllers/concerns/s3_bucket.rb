@@ -24,10 +24,10 @@ module S3Bucket
     @signer.presigned_url(:put_object, bucket: @bucket, key: key)
   end
 
-  def s3_bucket_path(goal, filename)
-    return unless goal
-    name = goal.title.gsub(/[^0-9A-Za-z]/, '')
-    "goals/#{goal.id}-#{name}/#{filename}"
+  def s3_bucket_path(scope, id, key, filename)
+    return unless scope
+    name = key.gsub(/[^0-9A-Za-z]/, '')
+    "#{scope}/#{id}-#{name}/#{filename}"
   end
 end
 
