@@ -4,13 +4,11 @@ require 'rails_helper'
 RSpec.describe 'Users API', type: :request do
   # initialize test data
   let!(:users) { create_list(:user, 10) }
-  let!(:user) { users.first }
+  let(:user) { users.first }
   let(:user_id) { user.id }
-  let(:goals) { create_list(:goal, 10, user: user) }
-  let(:goal_id) { goals.first.id }
 
   # Test suite for GET /users
-  describe 'GET /api/userss' do
+  describe 'GET /api/users' do
     # make HTTP get request before each example
     before { get '/api/users' }
 
@@ -131,16 +129,22 @@ RSpec.describe 'Users API', type: :request do
   describe 'DELETE /api/users/:id/purge' do
 
     context 'when the record exists' do
+      let!(:user_id) { user.id }
+      let!(:goals) { create_list(:goal, 10, user: user) }
+      let!(:goal_id) { goals.first.id }
+
+
       before do
         delete "/api/users/#{user_id}/purge"
       end
+
       it 'returns status code 204' do
         expect(response).to have_http_status(204)
       end
 
       it 'does not have any goals' do
-        get "/api/goals/#{goal_id}?user_id=#{user_id}"
-        expect(json).to be_empty
+        result = user.goals
+        expect(result).to be_empty
       end
     end
 
@@ -149,7 +153,7 @@ RSpec.describe 'Users API', type: :request do
 
       context 'when the filename is passed' do
         before do
-          get "/api/userss/#{user_id}/presigned_url?filename=avatar.jpg"
+          get "/api/users/#{user_id}/presigned_url?filename=avatar.jpg"
         end
 
         it 'returns status code 200' do

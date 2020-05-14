@@ -41,7 +41,7 @@ module Api
     def presigned_url
       filename = params['filename']
       bad_request('Filename not provided!') unless filename
-      key = s3_bucket_path('user', @user.id, @user.name, filename)
+      key = s3_bucket_path('users', @user.id, @user.name, filename)
       json_response(s3_presigned_url(key))
     end
 

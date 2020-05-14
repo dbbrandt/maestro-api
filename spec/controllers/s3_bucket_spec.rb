@@ -8,7 +8,7 @@ RSpec.describe 'S3Bucket Concern', type: :controller do
     end
   end
 
-  let(:bucket) { S3BucketController.new }
+  let!(:bucket) { S3BucketController.new }
 
   describe "s3 bucket files" do
     it 'returns files' do
@@ -19,7 +19,6 @@ RSpec.describe 'S3Bucket Concern', type: :controller do
   describe "presigned url" do
     it 'returns a url' do
       res =  bucket.s3_presigned_url('test')
-      p res
       url = res[:url]
       expect( url.length ).to be > 0
       expect( url ).to include 'http'
@@ -29,9 +28,11 @@ RSpec.describe 'S3Bucket Concern', type: :controller do
 
   describe "bucket_path" do
     it 'returns a bucket path' do
-      goal = create(:goal)
-      expect( bucket.s3_bucket_path(goal,'test')).to include goal.id.to_s
-      expect( bucket.s3_bucket_path(goal, 'test')).to include 'test'
+      goal =  create(:goal)
+      result =  bucket.s3_bucket_path("goals", goal.id, goal.title, 'test')
+      expect( result ).to include 'goals'
+      expect( result ).to include goal.id.to_s
+      expect( result ).to include 'test'
     end
   end
 end

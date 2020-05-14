@@ -1,4 +1,5 @@
 module Api
+  #TODO Replace implied required user_id parameter with authenticated user
   class GoalsController < ApplicationController
     include S3Bucket
     before_action :set_goal, except: [:create, :index]
@@ -12,7 +13,6 @@ module Api
 
     # POST /goals
     def create
-      set_user unless @user
       @goal = Goal.create!(goal_params)
       json_response(@goal, :created)
     end
@@ -42,7 +42,7 @@ module Api
 
     def presigned_url
       filename = params['filename']
-      bad_request('Filename not provided!') unless filename
+      return bad_request('Filename not provided!') unless filename
       key = s3_bucket_path('goals', @goal.id, @goal.title ,filename)
       json_response(s3_presigned_url(key))
     end
@@ -56,7 +56,8 @@ module Api
 
     def set_goal
       set_user
-      @goal = Goal.includes(:interactions, :contents).where(id: params[:id], user: @user)
+      @goal = Goal.includes(:interactions, :contents).find(params[:id])
+      @goal = @goal.user_id == @user.id ? @goal : nil
     end
 
     # TODO use auth to determine current user.

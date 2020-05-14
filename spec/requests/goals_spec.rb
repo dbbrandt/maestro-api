@@ -1,6 +1,7 @@
 # spec/requests/goals_spec.rb
 require 'rails_helper'
 
+#TODO Replace user_id param in most requests with authenticated user logic.
 RSpec.describe 'Goals API', type: :request do
   # initialize test data
   let!(:goals) { create_list(:goal, 10) }
@@ -55,7 +56,7 @@ RSpec.describe 'Goals API', type: :request do
   # Test suite for POST /goals
   describe 'POST /api/goals' do
     # valid payload
-    let(:valid_attributes) { { title: 'Learn Actor Names', user_id: user.id } }
+    let(:valid_attributes) { { title: 'Learn Actor Names', user_id: user_id } }
 
     context 'when the request is valid' do
       before { post '/api/goals', params: valid_attributes }
@@ -88,7 +89,7 @@ RSpec.describe 'Goals API', type: :request do
     let(:valid_attributes) { { title: 'Learn Actors Movies' } }
 
     context 'when the record exists' do
-      before { put "/api/goals/#{goal_id}", params: valid_attributes }
+      before { put "/api/goals/#{goal_id}?user_id=#{user_id}", params: valid_attributes }
 
       it 'updates the record' do
         expect(response.body).not_to be_empty
@@ -100,7 +101,7 @@ RSpec.describe 'Goals API', type: :request do
     end
 
     context 'when the record does not exists' do
-      before { put "/api/goals/100", params: valid_attributes }
+      before { put "/api/goals/100?user_id=#{user_id}", params: valid_attributes }
 
       it 'returns status code 404' do
         expect(response).to have_http_status(404)
@@ -112,7 +113,7 @@ RSpec.describe 'Goals API', type: :request do
   describe 'DELETE /api/goals/:id' do
 
     context 'when the record exists' do
-      before { delete "/api/goals/#{goal_id}" }
+      before { delete "/api/goals/#{goal_id}?user_id=#{user_id}" }
       it 'returns status code 204' do
         expect(response).to have_http_status(204)
       end
@@ -132,7 +133,7 @@ RSpec.describe 'Goals API', type: :request do
     context 'when the record exists' do
       before do
         create_list(:interaction, 10, goal: goals.first)
-        delete "/api/goals/#{goal_id}/purge"
+        delete "/api/goals/#{goal_id}/purge?user_id=#{user_id}"
       end
       it 'returns status code 204' do
         expect(response).to have_http_status(204)
@@ -150,7 +151,7 @@ RSpec.describe 'Goals API', type: :request do
 
     context 'when the filename is passed' do
       before do
-        get "/api/goals/#{goal_id}/presigned_url?filename=test"
+        get "/api/goals/#{goal_id}/presigned_url?user_id=#{user_id}&filename=test"
       end
 
       it 'returns status code 200' do
@@ -168,6 +169,16 @@ RSpec.describe 'Goals API', type: :request do
         name = goal.title.gsub(/[^0-9A-Za-z]/, '')
         expect(url).to include "#{goal.id}-#{name}/test"
         expect(url).to include json['filename']
+      end
+    end
+
+    context 'when the filename is not passed' do
+      before do
+        get "/api/goals/#{goal_id}/presigned_url?user_id=#{user_id}"
+      end
+
+      it 'returns status code 400 bad request' do
+        expect(response).to have_http_status(400)
       end
     end
   end
