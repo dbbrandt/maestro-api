@@ -1,7 +1,7 @@
 # spec/requests/round_spec.rb
 require 'rails_helper'
 
-RSpec.describe 'round API', type: :request do
+RSpec.describe 'rounds API', type: :request do
   let!(:user) { create(:user) }
   let!(:goal) { create(:goal) }
   let!(:goal_id) { goal.id }
