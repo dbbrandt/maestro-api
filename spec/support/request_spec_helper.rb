@@ -4,4 +4,10 @@ module RequestSpecHelper
   def json
     JSON.parse(response.body)
   end
+
+  def headers(params=nil)
+    credentials = ActionController::HttpAuthentication::Token.encode_credentials ApplicationController::TOKEN
+    headers = { headers: {'HTTP_AUTHORIZATION' => credentials}, params: params }
+    headers
+  end
 end

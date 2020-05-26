@@ -1,6 +1,7 @@
 #rubocop:disable all
 module Api
   class ApiController < ApplicationController
+
     rescue_from Api::Errors::BadRequestError, with: :bad_request!
     rescue_from StandardError, with: :internal_server_error!
 

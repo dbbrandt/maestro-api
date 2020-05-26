@@ -49,14 +49,15 @@ module Api
     def presigned_url
       filename = params['filename']
       if filename
-        key = s3_bucket_path(@interaction.goal, "#{@interaction.id}-#{filename}")
+        goal = @interaction.goal
+        key = s3_bucket_path('goals', goal.id, goal.title, "#{@interaction.id}-#{filename}")
         json_response(s3_presigned_url(key))
       else
         bad_request('Filename not provided!')
       end
     end
 
-    # GET /goals/:goals_id/interactions/:id?answer=
+    # GET /goals/:goals_id/interactions/:id/check_answer?answer=
     def check_answer
       answer = params['answer']
       correct_answer = @interaction.correct_answer

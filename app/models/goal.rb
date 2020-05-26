@@ -1,5 +1,5 @@
 class Goal < ApplicationRecord
-  validates_presence_of :title
+  validates_presence_of :title, :user_id
   default_scope { order(:title)}
 
   has_many :interactions, dependent: :destroy
