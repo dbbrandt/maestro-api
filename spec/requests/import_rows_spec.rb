@@ -17,31 +17,31 @@ RSpec.describe 'import_rows API', type: :request do
   context 'requests without a import_file specified should fail' do
     describe 'GET /api/import_rows' do
       it 'fails to find the route' do
-        expect{ get "/api/import_row" }.to raise_error(ActionController::RoutingError)
+        expect{ get "/api/import_row", headers }.to raise_error(ActionController::RoutingError)
       end
     end
 
     describe 'GET /api/import_rows/:id' do
       it 'fails to find the route' do
-        expect{ get "/api/import_rows/#{import_row_id}" }.to raise_error(ActionController::RoutingError)
+        expect{ get "/api/import_rows/#{import_row_id}", headers }.to raise_error(ActionController::RoutingError)
       end
     end
 
     describe 'PUT /interactions/:id' do
       it 'fails to find the route' do
-        expect{ put "/import_rows/#{import_row_id}" }.to raise_error(ActionController::RoutingError)
+        expect{ put "/import_rows/#{import_row_id}", headers }.to raise_error(ActionController::RoutingError)
       end
     end
 
     describe 'POST /api/import_rows' do
       it 'fails to find the route' do
-        expect{ post "/api/import_rows" }.to raise_error(ActionController::RoutingError)
+        expect{ post "/api/import_rows", headers }.to raise_error(ActionController::RoutingError)
       end
     end
 
     describe 'DELETE /import_rows/:id' do
       it 'fails to find the route' do
-        expect{ delete "/import_rows/#{import_row_id}" }.to raise_error(ActionController::RoutingError)
+        expect{ delete "/import_rows/#{import_row_id}", headers }.to raise_error(ActionController::RoutingError)
       end
     end
   end
@@ -51,7 +51,7 @@ RSpec.describe 'import_rows API', type: :request do
     # Test suite for GET /api/import_files/:import_file_id/import_rows
     describe 'GET /api/import_files/:import_file_id/import_rows' do
       # make HTTP get request before each example
-      before { get "/api/import_files/#{import_file_id}/import_rows" }
+      before { get "/api/import_files/#{import_file_id}/import_rows", headers }
 
       it 'returns import_rows' do
         # Note `json` is a custom helper to parse JSON responses
@@ -67,7 +67,7 @@ RSpec.describe 'import_rows API', type: :request do
     # Test suite for GET /api/import_files/:import_file_id/import_rows/:id
     describe 'GET /api/import_files/:import_file_id/import_rows/:id' do
       context 'when the record exists' do
-        before { get "/api/import_files/#{import_file_id}/import_rows/#{import_row_id}" }
+        before { get "/api/import_files/#{import_file_id}/import_rows/#{import_row_id}", headers }
 
         it 'returns the import_row' do
           expect(json).not_to be_empty
@@ -80,7 +80,7 @@ RSpec.describe 'import_rows API', type: :request do
       end
 
       context 'when the record does not exist' do
-        before { get "/api/import_files/#{import_file_id}/import_rows/1000" }
+        before { get "/api/import_files/#{import_file_id}/import_rows/1000", headers }
 
         it 'returns status code 404' do
           expect(response).to have_http_status(404)
@@ -96,7 +96,7 @@ RSpec.describe 'import_rows API', type: :request do
     describe 'POST /api/import_files/:import_file_id/import_rows' do
       # valid payload
       context 'when the request is valid' do
-        before { post "/api/import_files/#{import_file_id}/import_rows", params: valid_attributes }
+        before { post "/api/import_files/#{import_file_id}/import_rows", headers(valid_attributes) }
 
         it 'creates an import_row' do
           expect(json['title']).to eq('Tom Hanks')
@@ -109,7 +109,7 @@ RSpec.describe 'import_rows API', type: :request do
 
       context 'when the request is invalid' do
         context 'when the json is blank' do
-          before { post "/api/import_files/#{import_file_id}/import_rows", params: { title: "Meryl Streep"} }
+          before { post "/api/import_files/#{import_file_id}/import_rows", headers({ title: "Meryl Streep"}) }
 
           it 'returns status code 422' do
             expect(response).to have_http_status(422)
@@ -122,8 +122,8 @@ RSpec.describe 'import_rows API', type: :request do
 
         context 'when the title is a duplicate' do
           before do
-            post "/api/import_files/#{import_file_id}/import_rows", params: valid_attributes
-            post "/api/import_files/#{import_file_id}/import_rows", params: valid_attributes
+            post "/api/import_files/#{import_file_id}/import_rows", headers(valid_attributes)
+            post "/api/import_files/#{import_file_id}/import_rows", headers(valid_attributes)
           end
 
           it 'returns status code 422' do
@@ -136,7 +136,7 @@ RSpec.describe 'import_rows API', type: :request do
         end
 
         context 'when the json has invalid data' do
-          before { post "/api/import_files/#{import_file_id}/import_rows", params: invalid_json_data }
+          before { post "/api/import_files/#{import_file_id}/import_rows", headers(invalid_json_data) }
 
           it 'returns status code 422' do
             expect(response).to have_http_status(422)
@@ -156,7 +156,7 @@ RSpec.describe 'import_rows API', type: :request do
     describe 'PUT /api/import_files/:import_file_id/import_rows/:id' do
 
       context 'when the record exists' do
-        before { put "/api/import_files/#{import_file_id}/import_rows/#{import_row_id}", params: valid_attributes }
+        before { put "/api/import_files/#{import_file_id}/import_rows/#{import_row_id}", headers(valid_attributes) }
 
         it 'updates the record' do
           expect(response.body).to be_empty
@@ -168,7 +168,7 @@ RSpec.describe 'import_rows API', type: :request do
       end
 
       context 'when the record does not exists' do
-        before { put "/api/import_files/#{import_file_id}/import_rows/100", params: valid_attributes }
+        before { put "/api/import_files/#{import_file_id}/import_rows/100", headers(valid_attributes) }
 
         it 'returns status code 404' do
           expect(response).to have_http_status(404)
@@ -180,7 +180,7 @@ RSpec.describe 'import_rows API', type: :request do
     describe 'DELETE /api/import_files/:import_file_id/import_rows/:id' do
 
       context 'when the record exists' do
-        before { delete "/api/import_files/#{import_file_id}/import_rows/#{import_row_id}" }
+        before { delete "/api/import_files/#{import_file_id}/import_rows/#{import_row_id}", headers }
 
           it 'returns status code 204' do
             expect(response).to have_http_status(204)
@@ -188,7 +188,7 @@ RSpec.describe 'import_rows API', type: :request do
         end
 
       context 'when the record does not exists' do
-        before { delete "/api/import_files/#{import_file_id}/import_rows/100" }
+        before { delete "/api/import_files/#{import_file_id}/import_rows/100", headers }
 
         it 'returns status code 404' do
           expect(response).to have_http_status(404)

@@ -13,31 +13,31 @@ RSpec.describe 'rounds API', type: :request do
   context 'requests without a goal specified should fail' do
     describe 'GET /api/rounds' do
       it 'fails to find the route' do
-        expect{ get "/api/rounds" }.to raise_error(ActionController::RoutingError)
+        expect{ get "/api/rounds", headers }.to raise_error(ActionController::RoutingError)
       end
     end
 
     describe 'GET /api/rounds/:id' do
       it 'fails to find the route' do
-        expect{ get "/api/rounds/#{round_id}" }.to raise_error(ActionController::RoutingError)
+        expect{ get "/api/rounds/#{round_id}", headers }.to raise_error(ActionController::RoutingError)
       end
     end
   
     describe 'PUT /api/rounds/:id' do
       it 'fails to find the route' do
-        expect{ put"/api/rounds/#{round_id}" }.to raise_error(ActionController::RoutingError)
+        expect{ put"/api/rounds/#{round_id}", headers }.to raise_error(ActionController::RoutingError)
       end
     end
   
     describe 'POST /api/rounds' do
       it 'fails to find the route' do
-        expect{ post "/api/rounds" }.to raise_error(ActionController::RoutingError)
+        expect{ post "/api/rounds", headers }.to raise_error(ActionController::RoutingError)
       end
     end
   
     describe 'DELETE /api/rounds/:id' do
       it 'fails to find the route' do
-        expect{ delete"/api/rounds/#{round_id}" }.to raise_error(ActionController::RoutingError)
+        expect{ delete"/api/rounds/#{round_id}", headers }.to raise_error(ActionController::RoutingError)
       end
     end
   end
@@ -47,7 +47,7 @@ RSpec.describe 'rounds API', type: :request do
     describe 'GET /api/goals/:goal_id/rounds' do
       # make HTTP get request before each example
       before do
-        get "/api/goals/#{goal_id}/rounds?user_id=#{user.id}"
+        get "/api/goals/#{goal_id}/rounds?user_id=#{user.id}", headers
       end
 
       it 'returns rounds' do
@@ -64,7 +64,7 @@ RSpec.describe 'rounds API', type: :request do
     describe 'GET /api/goals/:goal_id/rounds' do
       # make HTTP get request before each example
       before do
-        get "/api/goals/#{goal_id}/rounds?user_id=#{user.id}"
+        get "/api/goals/#{goal_id}/rounds?user_id=#{user.id}", headers
       end
 
       it 'returns status code 200' do
@@ -82,7 +82,7 @@ RSpec.describe 'rounds API', type: :request do
     describe 'GET /api/goals/:goal_id/rounds deep responses' do
       # make HTTP get request before each example
       before do
-        get "/api/goals/#{goal_id}/rounds?deep=true&user_id=#{user.id}"
+        get "/api/goals/#{goal_id}/rounds?deep=true&user_id=#{user.id}", headers
       end
 
       it 'returns status code 200' do
@@ -101,7 +101,7 @@ RSpec.describe 'rounds API', type: :request do
     describe 'GET /api/goals/:goal_id/rounds/:id' do
       # make HTTP get request before each example
       before do
-        get "/api/goals/#{goal_id}/rounds/#{round_id}?user_id=#{user.id}"
+        get "/api/goals/#{goal_id}/rounds/#{round_id}?user_id=#{user.id}", headers
       end
 
       it 'returns status code 200' do
@@ -118,7 +118,7 @@ RSpec.describe 'rounds API', type: :request do
     describe 'GET /api/goals/:goal_id/rounds/:id deep responses' do
       # make HTTP get request before each example
       before do
-        get "/api/goals/#{goal_id}/rounds/#{round_id}?deep=true&user_id=#{user.id}"
+        get "/api/goals/#{goal_id}/rounds/#{round_id}?deep=true&user_id=#{user.id}", headers
       end
 
       it 'returns status code 200' do
