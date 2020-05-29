@@ -6,8 +6,7 @@ module Api
 
     # GET /goals
     def index
-      @goals =  @user ? Goal.where(user: @user) : Goal.all
-      @goals = Goal.all
+      @goals =  @current_user.admin ?  Goal.all : Goal.where(user: @current_user)
       json_response(@goals)
     end
 
@@ -51,20 +50,17 @@ module Api
 
     def goal_params
       # whitelist params
-      params.permit(:title,  :description, :instructions, :image_url, :user_id)
+      if @current_user.admin
+        params.permit(:title,  :description, :instructions, :image_url, :user_id)
+      else
+        goal_params = params.permit(:title,  :description, :instructions, :image_url)
+        goal_params[:user_id] = @current_user.id
+      end
     end
 
     def set_goal
-      set_user
       @goal = Goal.includes(:interactions, :contents).find(params[:id])
-      @goal = @goal.user_id == @user.id ? @goal : nil
-    end
-
-    # TODO use auth to determine current user.
-    # Only admin can specify a different user.
-    def set_user
-      user_id = params['user_id']
-      @user = user_id ? User.find(user_id) : User.find(1)
+      @goal = nil unless @current_user.admin || @goal.user_id == @current_user.id
     end
   end
 end

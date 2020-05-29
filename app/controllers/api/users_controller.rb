@@ -65,5 +65,10 @@ module Api
       @user = @current_user.admin ? User.find(params['id']) : @current_user
     end
 
+    def check_permission
+      unless @current_user.admin || @current_user.id.to_s == params[:id]
+        forbidden_request('Invalid user request!')
+      end
+    end
   end
 end

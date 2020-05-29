@@ -4,30 +4,61 @@ require 'rails_helper'
 #TODO Replace user_id param in most requests with authenticated user logic.
 RSpec.describe 'Goals API', type: :request do
   # initialize test data
+  let!(:admin_user) { create(:admin_user) }
+  let!(:admin_user_id) { admin_user.id }
+  let(:user) { create(:user) }
+  let(:user_id) { user.id }
   let!(:goals) { create_list(:goal, 10) }
   let(:goal) { goals.first }
   let(:goal_id) { goal.id }
   let(:user_id) { goal.user_id }
+  let!(:other_goal) { create(:goal) }
+  let(:other_user_id) { other_goal.user_id }
 
   # Test suite for GET /goals
   describe 'GET /api/goals' do
     # make HTTP get request before each example
-    before { get '/api/goals', headers }
+    context 'by admin user' do
+      before do
+        set_token(admin_user_id)
+        get '/api/goals', headers
+      end
 
-    it 'returns goals' do
-      # Note `json` is a custom helper to parse JSON responses
-      expect(json).not_to be_empty
-      expect(json.size).to eq(10)
+      it 'returns goals' do
+        # Note `json` is a custom helper to parse JSON responses
+        expect(json).not_to be_empty
+        expect(json.size).to eq(11)
+      end
+
+      it 'returns status code 200' do
+        expect(response).to have_http_status(200)
+      end
     end
 
-    it 'returns status code 200' do
-      expect(response).to have_http_status(200)
+    context 'by other user' do
+      before do
+        set_token(other_user_id)
+        get '/api/goals', headers
+      end
+
+      it 'returns users goal' do
+        # Note `json` is a custom helper to parse JSON responses
+        expect(json).not_to be_empty
+        expect(json.size).to eq(1)
+      end
+
+      it 'returns status code 200' do
+        expect(response).to have_http_status(200)
+      end
     end
   end
 
   # Test suite for GET /goals/:id
   describe 'GET /api/goals/:id' do
-    before { get "/api/goals/#{goal_id}?user_id=#{user_id}", headers }
+    before do
+      set_token(user_id)
+      get "/api/goals/#{goal_id}", headers
+    end
 
     context 'when the record exists' do
       it 'returns the goal' do
