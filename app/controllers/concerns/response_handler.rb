@@ -7,4 +7,8 @@ module ResponseHandler
   def bad_request(message)
     render json: {message: message}, status: :bad_request
   end
+
+  def forbidden_request(message)
+    render json: {message: message}, status: :forbidden
+  end
 end

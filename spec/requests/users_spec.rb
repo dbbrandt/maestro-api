@@ -3,13 +3,16 @@ require 'rails_helper'
 
 RSpec.describe 'Users API', type: :request do
   # initialize test data
-  let!(:users) { create_list(:user, 10) }
+  let!(:admin_user) { create(:admin_user) }
+  let!(:admin_user_id) { admin_user.id }
+  let(:users) { create_list(:user, 10) }
   let(:user) { users.first }
   let(:user_id) { user.id }
   let(:email) { user.email }
-  let(:admin_user) { create(:admin_user)}
+  let(:valid_attributes) { { email: 'test@test.com', password: "google", name: 'Test user' } }
 
-  before { set_user(user_id) }
+
+  before { set_token(user_id) }
 
   # Test suite for GET /users
   describe 'GET /api/users' do
@@ -17,7 +20,7 @@ RSpec.describe 'Users API', type: :request do
 
     context 'when the user is an admin' do
       before do
-        set_user(admin_user.id)
+        set_token(admin_user_id)
         get '/api/users', headers
       end
 
@@ -52,9 +55,13 @@ RSpec.describe 'Users API', type: :request do
 
   # Test suite for GET /users/:id
   describe 'GET /api/users/:id' do
-    before { get "/api/users/#{user_id}" , headers}
 
     context 'when the record exists' do
+      before do
+        set_token(user_id)
+        get "/api/users/#{user_id}", headers
+      end
+
       it 'returns the user' do
         expect(json).not_to be_empty
         expect(json['id']).to eq(user_id)
@@ -66,7 +73,10 @@ RSpec.describe 'Users API', type: :request do
     end
 
     context 'when the record does not exist' do
-      let(:user_id) { "not_found" }
+      before do
+        set_token(admin_user_id)
+        get "/api/users/100", headers
+      end
 
       it 'returns status code 404' do
         expect(response).to have_http_status(404)
@@ -77,27 +87,22 @@ RSpec.describe 'Users API', type: :request do
       end
     end
 
-    context 'when using email for id' do
-      before { get "/api/users/#{email}", headers}
-
-      it 'returns the user' do
-        expect(json).not_to be_empty
-        expect(json['id']).to eq(user_id)
+    context 'when the user_id is invalid for the requesting user' do
+      before do
+        set_token(user_id)
+        get "/api/users/100", headers
       end
 
-      it 'returns status code 200' do
-        expect(response).to have_http_status(200)
+      it 'returns status code 403 Forbidden' do
+        expect(response).to have_http_status(403)
       end
     end
   end
 
   # Test suite for POST /users
   describe 'POST /api/users' do
-    # valid payload
-    let(:valid_attributes) { { email: 'test@test.com', password: "google", name: 'Test user' } }
-
     context 'when the request is valid' do
-      before { post '/api/users', headers(valid_attributes) }
+      before { post '/api/users', app_headers(valid_attributes) }
 
       it 'creates a user' do
         expect(json['email']).to eq('test@test.com')
@@ -109,9 +114,9 @@ RSpec.describe 'Users API', type: :request do
     end
 
     context 'when the request is invalid' do
-      before { post '/api/users', headers }
+      before { post '/api/users', app_headers }
 
-      it 'returns status code 422' do
+      it 'returns status code 403' do
         expect(response).to have_http_status(422)
       end
 
@@ -138,8 +143,23 @@ RSpec.describe 'Users API', type: :request do
       end
     end
 
+    context 'when the user_id is invalid' do
+      before do
+        # Requesting a non-existent user can only be done by admin
+        put "/api/users/100", headers(valid_attributes)
+      end
+
+      it 'returns status code 403 Forbidden' do
+        expect(response).to have_http_status(403)
+      end
+    end
+
     context 'when the record does not exists' do
-      before { put "/api/users/100", headers(valid_attributes) }
+      before do
+        # Requesting a non-existent user can only be done by admin
+        set_token(admin_user_id)
+        put "/api/users/100", headers(valid_attributes)
+      end
 
       it 'returns status code 404' do
         expect(response).to have_http_status(404)
@@ -147,20 +167,31 @@ RSpec.describe 'Users API', type: :request do
     end
   end
 
+
   # Test suite for DELETE /goals/:id
   describe 'DELETE /api/users/:id' do
+    before { set_token(admin_user_id)}
 
     context 'when the record exists' do
-      before { delete "/api/users/#{user_id}", headers }
+
       it 'returns status code 204' do
+        delete "/api/users/#{user_id}", headers
         expect(response).to have_http_status(204)
       end
     end
 
     context 'when the record does not exists' do
-      before { delete "/api/users/100", headers }
       it 'returns status code 404' do
+        delete "/api/users/100", headers
         expect(response).to have_http_status(404)
+      end
+    end
+
+    context 'when the user is not admin' do
+      it 'returns status code 403 Forbidden' do
+        set_token(user_id)
+        delete "/api/users/#{user_id}", headers
+        expect(response).to have_http_status(403)
       end
     end
   end

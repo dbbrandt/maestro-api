@@ -3,192 +3,80 @@ require 'rails_helper'
 
 RSpec.describe 'Auth API', type: :request do
   # initialize test data
-  let(:user) { create(:user) }
+  let!(:admin_user) { create(:admin_user) }
+  let!(:admin_user_id) { admin_user.id }
+  let(:users) { create_list(:user, 10) }
+  let(:user) { users.first }
   let(:user_id) { user.id }
   let(:email) { user.email }
+  let(:valid_attributes) { { email: email } }
+  let(:invalid_attributes) { { id: user_id } }
 
 
   # Test suite for POST /authorize
   describe 'POST /api/authorize' do
     # make HTTP get request before each example
-    before do
-      post '/api/authorize', headers
-    end
-
-
-    it 'returns goals' do
-      # Note `json` is a custom helper to parse JSON responses
-      expect(json).not_to be_empty
-      expect(json.size).to eq(10)
-    end
-
-    it 'returns status code 200' do
-      expect(response).to have_http_status(200)
-    end
-  end
-
-  # Test suite for GET /users/:id
-  describe 'GET /api/users/:id' do
-    before { get "/api/users/#{user_id}" , headers}
-
-    context 'when the record exists' do
-      it 'returns the user' do
-        expect(json).not_to be_empty
-        expect(json['id']).to eq(user_id)
-      end
-
-      it 'returns status code 200' do
-        expect(response).to have_http_status(200)
-      end
-    end
-
-    context 'when the record does not exist' do
-      let(:user_id) { "not_found" }
-
-      it 'returns status code 404' do
-        expect(response).to have_http_status(404)
-      end
-
-      it 'returns a not found message' do
-        expect(response.body).to match(/Couldn't find User/)
-      end
-    end
-
-    context 'when using email for id' do
-      before { get "/api/users/#{email}", headers}
-
-      it 'returns the user' do
-        expect(json).not_to be_empty
-        expect(json['id']).to eq(user_id)
-      end
-
-      it 'returns status code 200' do
-        expect(response).to have_http_status(200)
-      end
-    end
-  end
-
-  # Test suite for POST /users
-  describe 'POST /api/users' do
-    # valid payload
-    let(:valid_attributes) { { email: 'test@test.com', password: "google", name: 'Test user' } }
-
-    context 'when the request is valid' do
-      before { post '/api/users', headers(valid_attributes) }
-
-      it 'creates a user' do
-        expect(json['email']).to eq('test@test.com')
-      end
-
-      it 'returns status code 201' do
-        expect(response).to have_http_status(201)
-      end
-    end
-
-    context 'when the request is invalid' do
-      before { post '/api/users', headers }
-
-      it 'returns status code 422' do
-        expect(response).to have_http_status(422)
-      end
-
-      it 'returns a validation failure message' do
-        expect(response.body)
-            .to match(/Validation failed: Password can't be blank/)
-      end
-    end
-  end
-
-  # Test suite for PUT /goals/:id
-  describe 'PUT /api/users/:id' do
-    let(:valid_attributes) { { name: 'test user' } }
-
-    context 'when the record exists' do
-      before { put "/api/users/#{user_id}", headers(valid_attributes) }
-
-      it 'updates the record' do
-        expect(response.body).not_to be_empty
-      end
-
-      it 'returns status code 200' do
-        expect(response).to have_http_status(200)
-      end
-    end
-
-    context 'when the record does not exists' do
-      before { put "/api/users/100", headers(valid_attributes) }
-
-      it 'returns status code 404' do
-        expect(response).to have_http_status(404)
-      end
-    end
-  end
-
-  # Test suite for DELETE /goals/:id
-  describe 'DELETE /api/users/:id' do
-
-    context 'when the record exists' do
-      before { delete "/api/users/#{user_id}", headers }
-      it 'returns status code 204' do
-        expect(response).to have_http_status(204)
-      end
-    end
-
-    context 'when the record does not exists' do
-      before { delete "/api/users/100", headers }
-      it 'returns status code 404' do
-        expect(response).to have_http_status(404)
-      end
-    end
-  end
-
-  # Test suite for DELETE /users/:id/purge
-  describe 'DELETE /api/users/:id/purge' do
-
-    context 'when the record exists' do
-      let!(:user_id) { user.id }
-      let!(:goals) { create_list(:goal, 10, user: user) }
-      let!(:goal_id) { goals.first.id }
-
-
+    context 'valid headers' do
       before do
-        delete "/api/users/#{user_id}/purge", headers
+        post '/api/authorize', app_headers(valid_attributes)
       end
 
-      it 'returns status code 204' do
-        expect(response).to have_http_status(204)
+      it 'returns a valid token' do
+        expect(json).not_to be_empty
+        token = json["auth_token"]
+        expect(token).not_to be_empty
+        payload = JWT.decode(token, ApplicationController::SECRET)[0]
+        expect(payload["user_id"]).to eq(user_id)
       end
 
-      it 'does not have any goals' do
-        result = user.goals
-        expect(result).to be_empty
+      it 'returns status code 200' do
+        expect(response).to have_http_status(200)
       end
     end
 
-    # Test suite for GET /users/:id/presigned_url
-    describe 'GET /api/users/:id/presigned_url' do
+    context 'invalid parameters' do
+      before do
+        post '/api/authorize', app_headers(invalid_attributes)
+      end
 
-      context 'when the filename is passed' do
-        before do
-          get "/api/users/#{user_id}/presigned_url?filename=avatar.jpg", headers
-        end
+      it 'returns a valid token' do
+        expect(json).to be_nil
+      end
 
-        it 'returns status code 200' do
-          expect(response).to have_http_status(200)
-        end
+      it 'returns status code 403 forbidden' do
+        expect(response).to have_http_status(403)
+      end
+    end
 
-        it 'returns a url' do
-          expect(json['url']).not_to be_nil
-        end
+    context 'user token with invalid attributes' do
+      before do
+        set_token(user_id)
+        post '/api/authorize', headers(invalid_attributes)
+      end
 
-        it 'returns a url with the proper file path' do
-          url = json['url']
-          expect(url).to include 'http'
-          expect(url).to include 'users/'
-          name = user.name.gsub(/[^0-9A-Za-z]/, '')
-          expect(url).to include "#{user.id}-#{name}/avatar.jpg"
-          expect(url).to include json['filename']
-        end
+      it 'returns the same valid token' do
+        expect(json).not_to be_empty
+        expect(json["auth_token"]).to eq(@token)
+      end
+
+      it 'returns status code 200' do
+        expect(response).to have_http_status(200)
+      end
+    end
+
+    context 'invalid token' do
+      before do
+        set_token(99)
+        post '/api/authorize', headers(valid_attributes)
+      end
+
+      it 'returns the same Invalid Token' do
+        expect(body).not_to be_empty
+        expect(body).to match(/HTTP Token: Access denied/)
+      end
+
+      it 'returns status code 401 Unauthorized' do
+        expect(response).to have_http_status(401)
       end
     end
   end

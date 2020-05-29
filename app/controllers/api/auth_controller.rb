@@ -15,7 +15,6 @@ module Api
       @user ||= @current_user
       # Try finding user by email then id.
       @user ||= User.find_by_email(params[:email]) unless @user
-      @user ||= User.find_by_id(params[:id])
     end
   end
 end

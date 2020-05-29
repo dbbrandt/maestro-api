@@ -7,6 +7,12 @@ class ApplicationController < ActionController::API
 
   before_action :authenticate
 
+  def check_permission
+    unless @current_user.admin || @current_user.id.to_s == params[:id]
+      forbidden_request('Invalid user request!')
+    end
+  end
+
   def authenticate
     authenticate_or_request_with_http_token do |token, options|
       # Compare the tokens in a time-constant manner, to mitigate
@@ -18,8 +24,9 @@ class ApplicationController < ActionController::API
 
   def current_user
     unless @current_user
-      token =  decoded_auth_token
-      @current_user = User.find(decoded_auth_token["user_id"]) if token.key?("user_id")
+      user_token =  decoded_auth_token
+      # Use where rather than find in case an valid token for a deleted user is passed
+      @current_user = User.where(id: user_token["user_id"]).first if user_token.key?("user_id")
     end
     @current_user
   end
@@ -29,15 +36,16 @@ class ApplicationController < ActionController::API
   end
 
   def decoded_auth_token
-    token ||= http_auth_header
-    token ? JWT.decode(token, SECRET)[0] : {}
+    header = http_auth_header
+    decoded_token = header ? JWT.decode(header, SECRET)[0] : {}
+    decoded_token
   end
 
   def http_auth_header
     if request.headers['Authorization'].present?
-      token = request.headers['Authorization'].split(' ').last
-      if token.split('.').length == 3
-        return token
+      auth_token = request.headers['Authorization'].split(' ').last
+      if auth_token.split('.').length == 3
+        return auth_token
       end
     end
     nil

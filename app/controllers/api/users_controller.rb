@@ -1,18 +1,22 @@
 module Api
   class UsersController < ApplicationController
     include S3Bucket
-    before_action :set_user, except: [:create, :index]
+    before_action :check_permission, :set_user, except: [:create, :index]
 
     # GET /users
     def index
-      @users = @user.admin ? User.all : User.where(id: @current_user.id)
+      @users = @current_user.admin ? User.all : User.where(id: @current_user.id)
       json_response(@users)
     end
 
     # POST /users
     def create
-      @user = User.create!(user_params)
-      json_response(@user, :created)
+      if @current_user.nil? || @current_user.admin
+        @user = User.create!(user_params)
+        json_response(@user, :created)
+      else
+        forbidden_request('Invalid user request!')
+      end
     end
 
     # GET /users/:id
@@ -22,14 +26,18 @@ module Api
 
     # PUT /users/:id
     def update
-      @user.update(user_params)
+      @user.update(user_params) if @user
       json_response(@user)
     end
 
     # DELETE /users/:id
     def destroy
-      @user.destroy
-      head :no_content
+      if @current_user.admin
+        @user.destroy
+        head :no_content
+      else
+        forbidden_request('Invalid user request!') unless @current_user.admin
+      end
     end
 
     # Delete /users/:id/purge
@@ -40,7 +48,7 @@ module Api
 
     def presigned_url
       filename = params['filename']
-      bad_request('Filename not provided!') unless filename
+      return bad_request('Filename not provided!') unless filename
       key = s3_bucket_path('users', @user.id, @user.name, filename)
       json_response(s3_presigned_url(key))
     end
@@ -49,13 +57,13 @@ module Api
 
     def user_params
       # whitelist params
-      params.permit(:email, :password, :name,  :avatar_url, )
+      params.permit(:email, :password, :name,  :avatar_url )
     end
 
-    # TODO use auth to determine current user.
     # Only admin can specify a different user.
     def set_user
-      @user = @current_user.admin ? User.find(params['user_id']) : @current_user
+      @user = @current_user.admin ? User.find(params['id']) : @current_user
     end
+
   end
 end
