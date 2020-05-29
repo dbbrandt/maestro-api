@@ -5,8 +5,12 @@ module RequestSpecHelper
     JSON.parse(response.body)
   end
 
+  def set_user(user_id)
+    @token = ApplicationController.new.encode_auth_token(user_id)
+  end
+
   def headers(params=nil)
-    credentials = ActionController::HttpAuthentication::Token.encode_credentials ApplicationController::TOKEN
+    credentials = "Bearer " + @token
     headers = { headers: {'HTTP_AUTHORIZATION' => credentials}, params: params }
     headers
   end

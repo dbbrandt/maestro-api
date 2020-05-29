@@ -5,7 +5,7 @@ module Api
 
     # GET /users
     def index
-      @users = User.all
+      @users = @user.admin ? User.all : User.where(id: @current_user.id)
       json_response(@users)
     end
 
@@ -52,17 +52,10 @@ module Api
       params.permit(:email, :password, :name,  :avatar_url, )
     end
 
+    # TODO use auth to determine current user.
+    # Only admin can specify a different user.
     def set_user
-      # Try finding user by id then email. If not find generate not found user
-      @user = User.find_by_id(params[:id])
-      unless @user
-        domain = params[:format] ? ".#{params[:format]}" : ""
-      end
-      @user = User.find_by_email(params[:id]+domain) unless @user
-      unless @user
-        # Generate not found error
-        @user = User.find(params[:id])
-      end
+      @user = @current_user.admin ? User.find(params['user_id']) : @current_user
     end
   end
 end

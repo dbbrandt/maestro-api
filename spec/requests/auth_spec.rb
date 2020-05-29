@@ -1,52 +1,29 @@
 # spec/requests/users_spec.rb
 require 'rails_helper'
 
-RSpec.describe 'Users API', type: :request do
+RSpec.describe 'Auth API', type: :request do
   # initialize test data
-  let!(:users) { create_list(:user, 10) }
-  let(:user) { users.first }
+  let(:user) { create(:user) }
   let(:user_id) { user.id }
   let(:email) { user.email }
-  let(:admin_user) { create(:admin_user)}
 
-  before { set_user(user_id) }
 
-  # Test suite for GET /users
-  describe 'GET /api/users' do
+  # Test suite for POST /authorize
+  describe 'POST /api/authorize' do
     # make HTTP get request before each example
-
-    context 'when the user is an admin' do
-      before do
-        set_user(admin_user.id)
-        get '/api/users', headers
-      end
-
-      it 'returns users' do
-        # Note `json` is a custom helper to parse JSON responses
-        expect(json).not_to be_empty
-        expect(json.size).to eq(11)
-      end
-
-      it 'returns status code 200' do
-        expect(response).to have_http_status(200)
-      end
+    before do
+      post '/api/authorize', headers
     end
 
-    context 'when the user is not an admin' do
-      before do
-        get '/api/users', headers
-      end
 
-      it 'returns users' do
-        # Note `json` is a custom helper to parse JSON responses
-        expect(json).not_to be_empty
-        expect(json.size).to eq(1)
-        expect(json[0]["id"]).to eq(user_id)
-      end
+    it 'returns goals' do
+      # Note `json` is a custom helper to parse JSON responses
+      expect(json).not_to be_empty
+      expect(json.size).to eq(10)
+    end
 
-      it 'returns status code 200' do
-        expect(response).to have_http_status(200)
-      end
+    it 'returns status code 200' do
+      expect(response).to have_http_status(200)
     end
   end
 
