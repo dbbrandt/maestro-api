@@ -3,6 +3,7 @@ require 'rails_helper'
 
 RSpec.describe 'round responses API', type: :request do
   let!(:user) { create(:user) }
+  let!(:user_id) { user.id }
   let!(:goal) { create(:goal) }
   let!(:goal_id) { goal.id }
   let!(:rounds) { create_list(:round, 10, goal: goal, user: user) }
@@ -12,6 +13,7 @@ RSpec.describe 'round responses API', type: :request do
   let(:round_id) { round.id }
   let(:response_id) { round_response.id }
 
+  before { set_token(user_id)}
   context 'requests without a goal specified should fail' do
     describe 'GET /api/round_responses' do
       it 'fails to find the route' do

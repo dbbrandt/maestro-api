@@ -4,6 +4,7 @@ require 'rails_helper'
 RSpec.describe 'interactions API', type: :request do
   # initialize test data
   let!(:user) { create(:user) }
+  let!(:user_id) { user.id}
   let!(:goal) { create(:goal) }
   let!(:goal_id) { goal.id }
   let!(:interactions) { create_list(:interaction, 10, goal: goal) }
@@ -11,6 +12,7 @@ RSpec.describe 'interactions API', type: :request do
   let(:interaction_id) { interaction.id }
   let(:valid_attributes) { { title: 'Tom Hanks', answer_type: 'ShortAnswer' } }
 
+  before { set_token(user_id) }
 
   # Test reject requests that are not permitted for this resource
   context 'requests without a goal specified should fail' do
@@ -108,7 +110,7 @@ RSpec.describe 'interactions API', type: :request do
       end
 
       context 'when the record does not exist' do
-        before { get "/api/goals/#{goal_id}/interactions/1000", headers }
+        before { get "/api/goals/#{goal_id}/interactions/999", headers }
 
         it 'returns status code 404' do
           expect(response).to have_http_status(404)

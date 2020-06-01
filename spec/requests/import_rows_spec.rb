@@ -3,6 +3,8 @@ require 'rails_helper'
 
 RSpec.describe 'import_rows API', type: :request do
   # initialize test data
+  let!(:user) { create(:user) }
+  let!(:user_id) { user.id}
   let!(:goal) { create(:goal) }
   let!(:import_file) { create(:import_file, goal: goal) }
   let!(:import_file_id) { import_file.id }
@@ -12,6 +14,7 @@ RSpec.describe 'import_rows API', type: :request do
   let(:valid_attributes) { { title: "Tom Hanks", json_data: "{\"title\": \"#{Faker::Lorem.word}\",\"answer_type\": \"ShortAnswer\",\"prompt\": #{Faker::Lorem.sentences(number:1)},\"criterion1\": #{Faker::Lorem.sentences(number: 1)},\"copy1\": #{Faker::Lorem.sentences(number: 1)},\"points1\": \"1\"}"  } }
   let(:invalid_json_data) { { title: "Tom Hanks", json_data: "{\"title\": \"\",\"answer_type\": \"LongAnswer\",\"prompt\": \"\",\"criterion1\": \"\",\"copy1\": #{Faker::Lorem.sentences(number: 1)},\"points1\": \"0\"}"  } }
 
+  before { set_token(user_id)}
 
   # Test reject requests that are not permitted for this resource
   context 'requests without a import_file specified should fail' do
@@ -80,7 +83,7 @@ RSpec.describe 'import_rows API', type: :request do
       end
 
       context 'when the record does not exist' do
-        before { get "/api/import_files/#{import_file_id}/import_rows/1000", headers }
+        before { get "/api/import_files/#{import_file_id}/import_rows/999", headers }
 
         it 'returns status code 404' do
           expect(response).to have_http_status(404)
@@ -168,7 +171,7 @@ RSpec.describe 'import_rows API', type: :request do
       end
 
       context 'when the record does not exists' do
-        before { put "/api/import_files/#{import_file_id}/import_rows/100", headers(valid_attributes) }
+        before { put "/api/import_files/#{import_file_id}/import_rows/999", headers(valid_attributes) }
 
         it 'returns status code 404' do
           expect(response).to have_http_status(404)
@@ -188,7 +191,7 @@ RSpec.describe 'import_rows API', type: :request do
         end
 
       context 'when the record does not exists' do
-        before { delete "/api/import_files/#{import_file_id}/import_rows/100", headers }
+        before { delete "/api/import_files/#{import_file_id}/import_rows/999", headers }
 
         it 'returns status code 404' do
           expect(response).to have_http_status(404)

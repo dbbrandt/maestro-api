@@ -66,7 +66,7 @@ RSpec.describe 'Auth API', type: :request do
 
     context 'invalid token' do
       before do
-        set_token(99)
+        set_token(999)
         post '/api/authorize', headers(valid_attributes)
       end
 

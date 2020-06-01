@@ -3,6 +3,8 @@ require 'rails_helper'
 
 RSpec.describe 'Contents API', type: :request do
   # initialize test data
+  let!(:user) { create(:user) }
+  let!(:user_id) { user.id}
   let!(:goal) { create(:goal) }
   let!(:interaction) { create(:interaction, goal: goal) }
   let!(:interaction_id) { interaction.id }
@@ -10,6 +12,8 @@ RSpec.describe 'Contents API', type: :request do
   let(:content_id) { contents.first.id }
   let(:valid_prompt) { {title: 'Tom Hanks', content_type: 'Prompt' , copy: 'Test'} }
   let(:valid_criterion) { {title: 'Tom Hanks', content_type: 'Criterion' , descriptor: 'Test'} }
+
+  before { set_token(user_id) }
 
   # Test reject requests that are not permitted for this resource
   context 'requests without a interaction specified should fail' do
@@ -78,7 +82,7 @@ RSpec.describe 'Contents API', type: :request do
       end
 
       context 'when the record does not exist' do
-        before { get "/api/interactions/#{interaction_id}/contents/1000",  headers }
+        before { get "/api/interactions/#{interaction_id}/contents/999",  headers }
 
         it 'returns status code 404' do
           expect(response).to have_http_status(404)
@@ -175,7 +179,7 @@ RSpec.describe 'Contents API', type: :request do
       end
 
       context 'when the record does not exists' do
-        before { put "/api/interactions/#{interaction_id}/contents/100", headers(valid_prompt) }
+        before { put "/api/interactions/#{interaction_id}/contents/999", headers(valid_prompt) }
 
         it 'returns status code 404' do
           expect(response).to have_http_status(404)

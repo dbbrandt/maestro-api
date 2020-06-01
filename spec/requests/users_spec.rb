@@ -22,6 +22,7 @@ RSpec.describe 'Users API', type: :request do
       before do
         set_token(admin_user_id)
         get '/api/users', headers
+        get '/api/users', headers
       end
 
       it 'returns users' do
@@ -75,7 +76,7 @@ RSpec.describe 'Users API', type: :request do
     context 'when the record does not exist' do
       before do
         set_token(admin_user_id)
-        get "/api/users/100", headers
+        get "/api/users/999", headers
       end
 
       it 'returns status code 404' do
@@ -90,7 +91,7 @@ RSpec.describe 'Users API', type: :request do
     context 'when the user_id is invalid for the requesting user' do
       before do
         set_token(user_id)
-        get "/api/users/100", headers
+        get "/api/users/999", headers
       end
 
       it 'returns status code 403 Forbidden' do
@@ -146,7 +147,7 @@ RSpec.describe 'Users API', type: :request do
     context 'when the user_id is invalid' do
       before do
         # Requesting a non-existent user can only be done by admin
-        put "/api/users/100", headers(valid_attributes)
+        put "/api/users/999", headers(valid_attributes)
       end
 
       it 'returns status code 403 Forbidden' do
@@ -158,7 +159,7 @@ RSpec.describe 'Users API', type: :request do
       before do
         # Requesting a non-existent user can only be done by admin
         set_token(admin_user_id)
-        put "/api/users/100", headers(valid_attributes)
+        put "/api/users/999", headers(valid_attributes)
       end
 
       it 'returns status code 404' do
@@ -182,7 +183,7 @@ RSpec.describe 'Users API', type: :request do
 
     context 'when the record does not exists' do
       it 'returns status code 404' do
-        delete "/api/users/100", headers
+        delete "/api/users/999", headers
         expect(response).to have_http_status(404)
       end
     end

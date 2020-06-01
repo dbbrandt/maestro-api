@@ -2,9 +2,14 @@ class Api::RoundsController < ApplicationController
   before_action :set_goal
 
   def index
-    @rounds = Round.preload(:round_responses).where(goal_id: @goal, user_id: @user)
-    result = @rounds.map {|g| rounds_list(g, !!params['deep'])}
-    json_response(result)
+    if @current_user.admin || @goal.user_id == @current_user.id
+      @rounds = Round.preload(:round_responses).where(goal_id: @goal)
+      result = @rounds.map {|g| rounds_list(g, !!params['deep'])}
+      json_response(result)
+    else
+      forbidden_request('Invalid user request!')
+    end
+
   end
 
   def show
@@ -19,7 +24,6 @@ class Api::RoundsController < ApplicationController
     # TODO modify when user model and security incorporate
     @goal = Goal.preload(:interactions, :contents).find(params[:goal_id])
     set_round if @goal
-    set_user
   end
 
   def set_round
@@ -27,12 +31,6 @@ class Api::RoundsController < ApplicationController
     @round = Round.where(id: params['id']).first
   end
 
-  # TODO use auth to determine current user.
-  # Only admin can specify a different user.
-  def set_user
-    user_id = params['user_id']
-    @user = user_id ? User.find(user_id) : User.find(1)
-  end
 
   def rounds_list(round, deep = false)
     total = round.round_responses.count
@@ -40,7 +38,7 @@ class Api::RoundsController < ApplicationController
     {
         id: round.id,
         goal_id: round.goal_id,
-        user_id: @user.id,
+        user_id: round.user_id,
         title: @goal.title,
         total: total,
         correct: correct,

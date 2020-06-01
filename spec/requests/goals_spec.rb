@@ -72,7 +72,10 @@ RSpec.describe 'Goals API', type: :request do
     end
 
     context 'when the record does not exist' do
-      let(:goal_id) { 100 }
+      before do
+        set_token(admin_user_id)
+        get "/api/goals/999", headers
+      end
 
       it 'returns status code 404' do
         expect(response).to have_http_status(404)
@@ -143,7 +146,7 @@ RSpec.describe 'Goals API', type: :request do
     context 'when the record does not exists' do
       before do
         set_token(admin_user_id)
-        put "/api/goals/100?user_id=#{user_id}", headers(valid_attributes)
+        put "/api/goals/999", headers(valid_attributes)
       end
 
       it 'returns status code 404' do
@@ -168,7 +171,7 @@ RSpec.describe 'Goals API', type: :request do
     context 'when the record does not exists' do
       before do
         set_token(admin_user_id)
-        delete "/api/goals/100", headers
+        delete "/api/goals/999", headers
       end
       it 'returns status code 404' do
         expect(response).to have_http_status(404)

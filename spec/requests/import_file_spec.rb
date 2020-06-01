@@ -3,6 +3,8 @@ require 'rails_helper'
 
 RSpec.describe 'import_file API', type: :request do
   # initialize test data
+  let!(:user) { create(:user) }
+  let!(:user_id) { user.id}
   let(:csv_filename) { Rails.root.join "spec/fixtures/RubyQuiz.csv" }
   let(:invalid_csv_filename) { Rails.root.join "spec/fixtures/invalid_import.csv" }
   let!(:goal) { create(:goal) }
@@ -14,6 +16,8 @@ RSpec.describe 'import_file API', type: :request do
 
   let(:json_key) { "title" }
   let(:json_value) { "Ruby Developer" }
+
+  before { set_token(user_id) }
 
   # Test reject requests that are not permitted for this resource
   context 'CRUD requests without a goal specified should fail' do
@@ -82,7 +86,7 @@ RSpec.describe 'import_file API', type: :request do
         end
 
         context 'when the record does not exist' do
-          before { get "/api/goals/#{goal_id}/import_files/1000", headers }
+          before { get "/api/goals/#{goal_id}/import_files/999", headers }
 
           it 'returns status code 404' do
             expect(response).to have_http_status(404)
@@ -176,7 +180,7 @@ RSpec.describe 'import_file API', type: :request do
       end
 
       context 'when the record does not exists' do
-        before { put "/api/goals/#{goal_id}/import_files/100", headers(valid_attributes) }
+        before { put "/api/goals/#{goal_id}/import_files/999", headers(valid_attributes) }
 
         it 'returns status code 404' do
           expect(response).to have_http_status(404)
@@ -197,7 +201,7 @@ RSpec.describe 'import_file API', type: :request do
       end
 
       context 'when the record does not exists' do
-        before { delete "/api/goals/#{goal_id}/import_files/100", headers }
+        before { delete "/api/goals/#{goal_id}/import_files/999", headers }
 
         it 'returns status code 404' do
           expect(response).to have_http_status(404)
@@ -218,7 +222,7 @@ RSpec.describe 'import_file API', type: :request do
       end
 
       context 'when the import file does not exists' do
-        before { post "/api/goals/#{goal_id}/import_files/100/generate", headers}
+        before { post "/api/goals/#{goal_id}/import_files/999/generate", headers}
 
         it 'returns status code 404' do
           expect(response).to have_http_status(404)
