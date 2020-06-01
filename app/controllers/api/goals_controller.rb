@@ -55,6 +55,7 @@ module Api
       else
         goal_params = params.permit(:title,  :description, :instructions, :image_url)
         goal_params[:user_id] = @current_user.id
+        goal_params
       end
     end
 

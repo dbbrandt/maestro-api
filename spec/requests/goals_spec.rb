@@ -90,7 +90,10 @@ RSpec.describe 'Goals API', type: :request do
     let(:valid_attributes) { { title: 'Learn Actor Names', user_id: user_id } }
 
     context 'when the request is valid' do
-      before { post '/api/goals', headers(valid_attributes) }
+      before do
+        set_token(user_id)
+        post '/api/goals', headers(valid_attributes)
+      end
 
       it 'creates a goal' do
         expect(json['title']).to eq('Learn Actor Names')
@@ -102,7 +105,10 @@ RSpec.describe 'Goals API', type: :request do
     end
 
     context 'when the request is invalid' do
-      before { post '/api/goals', headers }
+      before do
+        set_token(user_id)
+        post '/api/goals', headers
+      end
 
       it 'returns status code 422' do
         expect(response).to have_http_status(422)
@@ -120,7 +126,10 @@ RSpec.describe 'Goals API', type: :request do
     let(:valid_attributes) { { title: 'Learn Actors Movies' } }
 
     context 'when the record exists' do
-      before { put "/api/goals/#{goal_id}?user_id=#{user_id}", headers(valid_attributes) }
+      before do
+        set_token(user_id)
+        put "/api/goals/#{goal_id}?user_id=#{user_id}", headers(valid_attributes)
+      end
 
       it 'updates the record' do
         expect(response.body).not_to be_empty
@@ -132,7 +141,10 @@ RSpec.describe 'Goals API', type: :request do
     end
 
     context 'when the record does not exists' do
-      before { put "/api/goals/100?user_id=#{user_id}", headers(valid_attributes) }
+      before do
+        set_token(admin_user_id)
+        put "/api/goals/100?user_id=#{user_id}", headers(valid_attributes)
+      end
 
       it 'returns status code 404' do
         expect(response).to have_http_status(404)
@@ -144,14 +156,20 @@ RSpec.describe 'Goals API', type: :request do
   describe 'DELETE /api/goals/:id' do
 
     context 'when the record exists' do
-      before { delete "/api/goals/#{goal_id}?user_id=#{user_id}", headers }
+      before do
+        set_token(user_id)
+        delete "/api/goals/#{goal_id}?user_id=#{user_id}", headers
+      end
       it 'returns status code 204' do
         expect(response).to have_http_status(204)
       end
     end
 
     context 'when the record does not exists' do
-      before { delete "/api/goals/100", headers }
+      before do
+        set_token(admin_user_id)
+        delete "/api/goals/100", headers
+      end
       it 'returns status code 404' do
         expect(response).to have_http_status(404)
       end
@@ -163,6 +181,7 @@ RSpec.describe 'Goals API', type: :request do
 
     context 'when the record exists' do
       before do
+        set_token(user_id)
         create_list(:interaction, 10, goal: goals.first)
         delete "/api/goals/#{goal_id}/purge?user_id=#{user_id}", headers
       end
@@ -182,7 +201,8 @@ RSpec.describe 'Goals API', type: :request do
 
     context 'when the filename is passed' do
       before do
-        get "/api/goals/#{goal_id}/presigned_url?user_id=#{user_id}&filename=test", headers
+        set_token(admin_user_id)
+        get "/api/goals/#{goal_id}/presigned_url?filename=test", headers
       end
 
       it 'returns status code 200' do
@@ -205,6 +225,7 @@ RSpec.describe 'Goals API', type: :request do
 
     context 'when the filename is not passed' do
       before do
+        set_token(user_id)
         get "/api/goals/#{goal_id}/presigned_url?user_id=#{user_id}", headers
       end
 
