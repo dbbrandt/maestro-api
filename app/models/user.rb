@@ -3,5 +3,5 @@ class User < ApplicationRecord
 
   has_many :rounds, dependent: :destroy
   has_many :goals, dependent: :destroy
-  validates :email, presence: true
+  validates :email, presence: true, uniqueness: true
 end

@@ -10,6 +10,7 @@ RSpec.describe 'Users API', type: :request do
   let(:user_id) { user.id }
   let(:email) { user.email }
   let(:valid_attributes) { { email: 'test@test.com', password: "google", name: 'Test user' } }
+  let(:existing_user) { { email: email, password: "google", name: 'Test user' } }
 
 
   before { set_token(user_id) }
@@ -117,7 +118,7 @@ RSpec.describe 'Users API', type: :request do
     context 'when the request is invalid' do
       before { post '/api/users', app_headers }
 
-      it 'returns status code 403' do
+      it 'returns status code 422' do
         expect(response).to have_http_status(422)
       end
 
@@ -126,6 +127,20 @@ RSpec.describe 'Users API', type: :request do
             .to match(/Validation failed: Password can't be blank/)
       end
     end
+
+    context 'when the user already exists' do
+      before { post '/api/users', app_headers(existing_user) }
+
+      it 'returns status code 422' do
+        expect(response).to have_http_status(422)
+      end
+
+      it 'returns a validation failure message' do
+        expect(response.body)
+            .to match(/Validation failed: Email has already been taken/)
+      end
+    end
+
   end
 
   # Test suite for PUT /goals/:id
