@@ -3,6 +3,8 @@ require 'rails_helper'
 
 RSpec.describe 'Contents API', type: :request do
   # initialize test data
+  let!(:user) { create(:user) }
+  let!(:user_id) { user.id}
   let!(:goal) { create(:goal) }
   let!(:interaction) { create(:interaction, goal: goal) }
   let!(:interaction_id) { interaction.id }
@@ -11,35 +13,37 @@ RSpec.describe 'Contents API', type: :request do
   let(:valid_prompt) { {title: 'Tom Hanks', content_type: 'Prompt' , copy: 'Test'} }
   let(:valid_criterion) { {title: 'Tom Hanks', content_type: 'Criterion' , descriptor: 'Test'} }
 
+  before { set_token(user_id) }
+
   # Test reject requests that are not permitted for this resource
   context 'requests without a interaction specified should fail' do
     describe 'GET /api/content' do
       it 'fails to find the route' do
-        expect{ get "/api/content" }.to raise_error(ActionController::RoutingError)
+        expect{ get "/api/content", headers }.to raise_error(ActionController::RoutingError)
       end
     end
 
     describe 'GET /api/contents/:id' do
       it 'fails to find the route' do
-        expect{ get "/api/contents/#{content_id}" }.to raise_error(ActionController::RoutingError)
+        expect{ get "/api/contents/#{content_id}", headers }.to raise_error(ActionController::RoutingError)
       end
     end
 
     describe 'PUT /api/contents/:id' do
       it 'fails to find the route' do
-        expect{ put "/api/contents/#{content_id}" }.to raise_error(ActionController::RoutingError)
+        expect{ put "/api/contents/#{content_id}", headers }.to raise_error(ActionController::RoutingError)
       end
     end
 
     describe 'POST /api/contents' do
       it 'fails to find the route' do
-        expect{ post "/api/contents" }.to raise_error(ActionController::RoutingError)
+        expect{ post "/api/contents", headers }.to raise_error(ActionController::RoutingError)
       end
     end
 
     describe 'DELETE /api/contents/:id' do
       it 'fails to find the route' do
-        expect{ delete "/api/contents/#{content_id}" }.to raise_error(ActionController::RoutingError)
+        expect{ delete "/api/contents/#{content_id}", headers }.to raise_error(ActionController::RoutingError)
       end
     end
   end
@@ -49,7 +53,7 @@ RSpec.describe 'Contents API', type: :request do
     # Test suite for GET /api/interaction/:interaction_id/contents
     describe 'GET /api/interactions/:interaction_id/contents' do
       # make HTTP get request before each example
-      before { get "/api/interactions/#{interaction_id}/contents" }
+      before { get "/api/interactions/#{interaction_id}/contents", headers }
 
       it 'returns contents' do
         # Note `json` is a custom helper to parse JSON responses
@@ -65,7 +69,7 @@ RSpec.describe 'Contents API', type: :request do
     # Test suite for GET /api/interaction/:interaction_id/contents/:id
     describe 'GET /api/interaction/:interaction_id/contents/:id' do
       context 'when the record exists' do
-        before { get "/api/interactions/#{interaction_id}/contents/#{content_id}" }
+        before { get "/api/interactions/#{interaction_id}/contents/#{content_id}", headers }
 
         it 'returns the interaction' do
           expect(json).not_to be_empty
@@ -78,7 +82,7 @@ RSpec.describe 'Contents API', type: :request do
       end
 
       context 'when the record does not exist' do
-        before { get "/api/interactions/#{interaction_id}/contents/1000" }
+        before { get "/api/interactions/#{interaction_id}/contents/999",  headers }
 
         it 'returns status code 404' do
           expect(response).to have_http_status(404)
@@ -94,7 +98,7 @@ RSpec.describe 'Contents API', type: :request do
     describe 'POST /api/interaction/:interaction_id/contents' do
       # valid payload
       context 'when the request is a valid' do
-        before { post "/api/interactions/#{interaction_id}/contents", params: valid_prompt }
+        before { post "/api/interactions/#{interaction_id}/contents", headers(valid_prompt) }
 
         it 'creates prompt contents' do
           expect(json['title']).to eq('Tom Hanks')
@@ -106,7 +110,7 @@ RSpec.describe 'Contents API', type: :request do
       end
 
       context 'when the request is invalid' do
-        before { post "/api/interactions/#{interaction_id}/contents", params: { title: "Meryl Streep", copy: "test"} }
+        before { post "/api/interactions/#{interaction_id}/contents", headers({ title: "Meryl Streep", copy: "test"}) }
 
         it 'returns status code 422' do
           expect(response).to have_http_status(422)
@@ -120,7 +124,7 @@ RSpec.describe 'Contents API', type: :request do
 
       context 'when the request is invalid prompt' do
         before { post "/api/interactions/#{interaction_id}/contents",
-                      params: { title: "Meryl Streep", content_type: "Prompt"} }
+                      headers({ title: "Meryl Streep", content_type: "Prompt"}) }
 
         it 'returns status code 422' do
           expect(response).to have_http_status(422)
@@ -133,7 +137,7 @@ RSpec.describe 'Contents API', type: :request do
       end
 
       context 'when the request is a valid criterion' do
-        before { post "/api/interactions/#{interaction_id}/contents", params: valid_criterion }
+        before { post "/api/interactions/#{interaction_id}/contents", headers(valid_criterion) }
 
         it 'creates a interaction' do
           expect(json['title']).to eq('Tom Hanks')
@@ -146,7 +150,7 @@ RSpec.describe 'Contents API', type: :request do
 
       context 'when the request is invalid criterion' do
         before { post "/api/interactions/#{interaction_id}/contents",
-                      params: { title: "Meryl Streep", content_type: "Criterion", copy: "test"} }
+                      headers( {title: "Meryl Streep", content_type: "Criterion", copy: "test"} ) }
 
         it 'returns status code 422' do
           expect(response).to have_http_status(422)
@@ -163,7 +167,7 @@ RSpec.describe 'Contents API', type: :request do
     describe 'PUT /api/interaction/:interaction_id/contents/:id' do
 
       context 'when the record exists' do
-        before { put "/api/interactions/#{interaction_id}/contents/#{content_id}", params: valid_prompt }
+        before { put "/api/interactions/#{interaction_id}/contents/#{content_id}", headers(valid_prompt) }
 
         it 'updates the record' do
           expect(response.body).to be_empty
@@ -175,7 +179,7 @@ RSpec.describe 'Contents API', type: :request do
       end
 
       context 'when the record does not exists' do
-        before { put "/api/interactions/#{interaction_id}/contents/100", params: valid_prompt }
+        before { put "/api/interactions/#{interaction_id}/contents/999", headers(valid_prompt) }
 
         it 'returns status code 404' do
           expect(response).to have_http_status(404)
@@ -189,7 +193,7 @@ RSpec.describe 'Contents API', type: :request do
     describe 'DELETE /api/interactions/:interaction_id/contents/:id' do
 
       context 'when the record exists' do
-        before { delete "/api/interactions/#{interaction_id}/contents/#{content_id}" }
+        before { delete "/api/interactions/#{interaction_id}/contents/#{content_id}", headers }
 
           it 'returns status code 204' do
             expect(response).to have_http_status(204)
@@ -197,7 +201,7 @@ RSpec.describe 'Contents API', type: :request do
         end
 
       context 'when the record does not exists' do
-        before { delete "/api/interactions/#{interaction_id}/contents/#{content_id}" }
+        before { delete "/api/interactions/#{interaction_id}/contents/#{content_id}", headers }
 
         it 'returns status code 204' do
           expect(response).to have_http_status(204)

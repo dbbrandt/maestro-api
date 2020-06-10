@@ -57,7 +57,7 @@ module Api
       end
     end
 
-    # GET /goals/:goals_id/interactions/:id?answer=
+    # GET /goals/:goals_id/interactions/:id/check_answer?answer=
     def check_answer
       answer = params['answer']
       correct_answer = @interaction.correct_answer

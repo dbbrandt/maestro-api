@@ -4,6 +4,7 @@ require 'rails_helper'
 RSpec.describe 'interactions API', type: :request do
   # initialize test data
   let!(:user) { create(:user) }
+  let!(:user_id) { user.id}
   let!(:goal) { create(:goal) }
   let!(:goal_id) { goal.id }
   let!(:interactions) { create_list(:interaction, 10, goal: goal) }
@@ -11,36 +12,37 @@ RSpec.describe 'interactions API', type: :request do
   let(:interaction_id) { interaction.id }
   let(:valid_attributes) { { title: 'Tom Hanks', answer_type: 'ShortAnswer' } }
 
+  before { set_token(user_id) }
 
   # Test reject requests that are not permitted for this resource
   context 'requests without a goal specified should fail' do
     describe 'GET /api/interactions' do
       it 'fails to find the route' do
-        expect{ get "/api/interaction" }.to raise_error(ActionController::RoutingError)
+        expect{ get "/api/interaction", headers }.to raise_error(ActionController::RoutingError)
       end
     end
 
     describe 'GET /api/interactions/:id' do
       it 'fails to find the route' do
-        expect{ get "/api/interactions/#{interaction_id}" }.to raise_error(ActionController::RoutingError)
+        expect{ get "/api/interactions/#{interaction_id}", headers }.to raise_error(ActionController::RoutingError)
       end
     end
 
     describe 'PUT /api/interactions/:id' do
       it 'fails to find the route' do
-        expect{ put"/api/interactions/#{interaction_id}" }.to raise_error(ActionController::RoutingError)
+        expect{ put"/api/interactions/#{interaction_id}", headers }.to raise_error(ActionController::RoutingError)
       end
     end
 
     describe 'POST /api/interactions' do
       it 'fails to find the route' do
-        expect{ post "/api/interactions" }.to raise_error(ActionController::RoutingError)
+        expect{ post "/api/interactions", headers }.to raise_error(ActionController::RoutingError)
       end
     end
 
     describe 'DELETE /api/interactions/:id' do
       it 'fails to find the route' do
-        expect{ delete"/api/interactions/#{interaction_id}" }.to raise_error(ActionController::RoutingError)
+        expect{ delete"/api/interactions/#{interaction_id}", headers}.to raise_error(ActionController::RoutingError)
       end
     end
   end
@@ -50,7 +52,7 @@ RSpec.describe 'interactions API', type: :request do
     # Test suite for GET /goal/:goal_id/interactions
     describe 'GET /api/goals/:goal_id/interactions' do
       # make HTTP get request before each example
-      before { get "/api/goals/#{goal_id}/interactions" }
+      before { get "/api/goals/#{goal_id}/interactions", headers }
 
       it 'returns interactions' do
         # Note `json` is a custom helper to parse JSON responses
@@ -67,7 +69,7 @@ RSpec.describe 'interactions API', type: :request do
       # make HTTP get request before each example
       before do
         create(:content, interaction: interaction)
-        get "/api/goals/#{goal_id}/interactions?deep=true"
+        get "/api/goals/#{goal_id}/interactions?deep=true", headers
       end
 
       it 'returns status code 200' do
@@ -86,7 +88,7 @@ RSpec.describe 'interactions API', type: :request do
 
       it 'return short answer interactions' do
         interaction.update_attributes(answer_type: "MultipleChoice")
-        get "/api/goals/#{goal_id}/interactions?deep=true&type=mc"
+        get "/api/goals/#{goal_id}/interactions?deep=true&type=mc", headers
         expect(json).not_to be_empty
         expect(json.size).to eq(1)
       end
@@ -95,7 +97,7 @@ RSpec.describe 'interactions API', type: :request do
     # Test suite for GET /goal/:goal_id/interactions/:id
     describe 'GET /api/goals/:goal_id/interactions/:id' do
       context 'when the record exists' do
-        before { get "/api/goals/#{goal_id}/interactions/#{interaction_id}" }
+        before { get "/api/goals/#{goal_id}/interactions/#{interaction_id}", headers }
 
         it 'returns the interaction' do
           expect(json).not_to be_empty
@@ -108,7 +110,7 @@ RSpec.describe 'interactions API', type: :request do
       end
 
       context 'when the record does not exist' do
-        before { get "/api/goals/#{goal_id}/interactions/1000" }
+        before { get "/api/goals/#{goal_id}/interactions/999", headers }
 
         it 'returns status code 404' do
           expect(response).to have_http_status(404)
@@ -124,7 +126,7 @@ RSpec.describe 'interactions API', type: :request do
     describe 'GET /api/goals/:goal_id/interactions/:id/check_answer' do
         before do
           create(:content, :criterion, interaction: interaction)
-          get "/api/goals/#{goal_id}/interactions/#{interaction_id}/check_answer?answer=wrong"
+          get "/api/goals/#{goal_id}/interactions/#{interaction_id}/check_answer?answer=wrong", headers
         end
 
       it 'returns the check results' do
@@ -140,7 +142,7 @@ RSpec.describe 'interactions API', type: :request do
       before do
         create(:content, :criterion, interaction: interaction)
         post "/api/goals/#{goal_id}/interactions/#{interaction_id}/submit_review?user_id=#{user.id}",
-            params: { goal_id: goal_id, id: interaction_id, round: 0, answer: 'Test', score: 90, correct: true, review: true }
+             headers({ goal_id: goal_id, id: interaction_id, round: 0, answer: 'Test', score: 90, correct: true, review: true })
       end
 
       it 'returns status code 200' do
@@ -159,7 +161,7 @@ RSpec.describe 'interactions API', type: :request do
     describe 'POST /api/goals/:goal_id/interactions' do
       # valid payload
       context 'when the request is valid' do
-        before { post "/api/goals/#{goal_id}/interactions", params: valid_attributes }
+        before { post "/api/goals/#{goal_id}/interactions", headers(valid_attributes) }
 
         it 'creates a interaction' do
           expect(json['title']).to eq('Tom Hanks')
@@ -171,7 +173,7 @@ RSpec.describe 'interactions API', type: :request do
       end
 
       context 'when the request is invalid' do
-        before { post "/api/goals/#{goal_id}/interactions", params: { title: "Meryl Streep"} }
+        before { post "/api/goals/#{goal_id}/interactions", headers({ title: "Meryl Streep"}) }
 
         it 'returns status code 422' do
           expect(response).to have_http_status(422)
@@ -188,7 +190,7 @@ RSpec.describe 'interactions API', type: :request do
     describe 'PUT /api/goals/:goal_id/interactions/:id' do
 
       context 'when the record exists' do
-        before { put "/api/goals/#{goal_id}/interactions/#{interaction_id}", params: valid_attributes }
+        before { put "/api/goals/#{goal_id}/interactions/#{interaction_id}", headers(valid_attributes) }
 
         it 'updates the record' do
           expect(response.body).not_to be_empty
@@ -200,7 +202,7 @@ RSpec.describe 'interactions API', type: :request do
       end
 
       context 'when the record does not exists' do
-        before { put "/api/goals/#{goal_id}/interactions/100", params: valid_attributes }
+        before { put "/api/goals/#{goal_id}/interactions/100", headers(valid_attributes) }
 
         it 'returns status code 404' do
           expect(response).to have_http_status(404)
@@ -214,7 +216,7 @@ RSpec.describe 'interactions API', type: :request do
     describe 'DELETE /api/goals/:goal_id/interactions/:id' do
 
       context 'when the record exists' do
-        before { delete "/api/goals/#{goal_id}/interactions/#{interaction_id}" }
+        before { delete "/api/goals/#{goal_id}/interactions/#{interaction_id}", headers }
 
           it 'returns status code 204' do
             expect(response).to have_http_status(204)
@@ -222,7 +224,7 @@ RSpec.describe 'interactions API', type: :request do
         end
 
       context 'when the record does not exists' do
-        before { delete "/api/goals/#{goal_id}/interactions/100" }
+        before { delete "/api/goals/#{goal_id}/interactions/100", headers }
 
         it 'returns status code 404' do
           expect(response).to have_http_status(404)
@@ -235,7 +237,7 @@ RSpec.describe 'interactions API', type: :request do
 
       context 'when the filename is passed' do
         before do
-          get "/api/goals/#{goal_id}/interactions/#{interaction_id}/presigned_url?filename=test"
+          get "/api/goals/#{goal_id}/interactions/#{interaction_id}/presigned_url?filename=test", headers
         end
 
         it 'returns status code 200' do
@@ -256,7 +258,7 @@ RSpec.describe 'interactions API', type: :request do
 
       context 'when the filename is not passed' do
         before do
-          get "/api/goals/#{goal_id}/interactions/#{interaction_id}/presigned_url"
+          get "/api/goals/#{goal_id}/interactions/#{interaction_id}/presigned_url", headers
         end
 
         it 'returns status code 400' do
