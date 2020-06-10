@@ -1,24 +1,4 @@
-# README
+# Memory Maestro - React Front End
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
-
-Things you may want to cover:
-
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+The master branch of this project is auto deployed to AWS using Amazon's Amplify Service.
+When a change to the master is detected, Amplify build's and deploys the React code to CloudFront.
