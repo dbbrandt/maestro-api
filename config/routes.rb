@@ -37,6 +37,13 @@ Rails.application.routes.draw do
         get :presigned_url
         delete :purge
       end
+
+      resources :users do
+        member do
+          get :presigned_url
+          delete :purge
+        end
+      end
     end
     post 'authorize', to: 'auth#authorize', as: 'authorize'
   end

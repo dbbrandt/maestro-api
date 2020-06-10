@@ -1,5 +1,4 @@
 module Api
-  #TODO Replace implied required user_id parameter with authenticated user
   class GoalsController < ApplicationController
     include S3Bucket
     before_action :set_goal, except: [:create, :index]
