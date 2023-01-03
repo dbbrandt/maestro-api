@@ -34,7 +34,7 @@ gem 'jwt'
 gem 'amatch', '~> 0.4'
 
 # Support External API Calls
-gem 'httparty', '~> 0.17'
+gem 'httparty', '~> 0.21'
 
 # Support generating pre-signed URL for S3
 gem 'aws-sdk'
