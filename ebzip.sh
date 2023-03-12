@@ -1,0 +1,1 @@
+zip ../maestro-api.zip -r * .[^.]* -x ".idea/*" ".git/*" "log/*"
